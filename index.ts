@@ -101,6 +101,7 @@ export async function runTasks() {
 
   if (!command) {
     console.log(chalk.green(`\nUnable to identify the package manager, Using NPM`))
+
     command = 'npm install'
   }
   execSync(command, { stdio: 'inherit', cwd: projectPath })
