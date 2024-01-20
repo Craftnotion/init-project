@@ -4,12 +4,18 @@
   "version": "0.0.1-7",
   "name": "@craftnotion/init-project",
   "keywords": [
-    "management",
-    "react-native",
+    "initproject",
+    "project-initialization",
+    "web-development",
+    "app-development",
     "nextjs",
     "adonisjs",
     "strapi",
-    "commit"
+    "react-native",
+    "typescript",
+    "husky",
+    "git-cz",
+    "craftnotion"
   ],
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
