@@ -2,7 +2,7 @@
   "author": "hsharma1996,craftnotion",
   "type": "commonjs",
   "version": "0.0.1",
-  "name": "init-project",
+  "name": "@craftnotion/init-project",
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
@@ -16,7 +16,7 @@
     "commit": "git-cz",
     "release": "np --message=\"chore(release): %s\"",
     "version": "npm run build",
-    "sync-labels": "github-label-sync --labels ./node_modules/@adonisjs/mrm-preset/gh-labels.json hsharma1996/init-project"
+    "sync-labels": "github-label-sync --labels ./node_modules/@adonisjs/mrm-preset/gh-labels.json craftnotion/init-project"
   },
   "devDependencies": {
     "@adonisjs/mrm-preset": "^5.0.3",
@@ -81,7 +81,8 @@
   ],
   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "tag": "latest",
+    "registry": "https://registry.npmjs.org"
   },
   "prettier": {
     "trailingComma": "es5",
