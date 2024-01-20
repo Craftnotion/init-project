@@ -1,7 +1,7 @@
 {
   "author": "hsharma1996,craftnotion",
   "type": "commonjs",
-  "version": "0.0.1",
+  "version": "0.0.2-0",
   "name": "@craftnotion/init-project",
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
