@@ -11,7 +11,7 @@ import {
   handlePackageManager,
   updatePkg,
   copyTemplates,
-  isGitCzInstalled
+  isGitCzInstalled,
 } from './src/functions'
 
 import runAdonis from './src/adonisjs'
@@ -107,4 +107,3 @@ export async function runTasks() {
   }
   execSync(command, { stdio: 'inherit', cwd: projectPath })
 }
-
