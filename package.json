@@ -1,4 +1,5 @@
 {
+  "author": "hsharma1996,craftnotion",
   "type": "commonjs",
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
@@ -73,6 +74,10 @@
   "eslintIgnore": [
     "build"
   ],
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
   "prettier": {
     "trailingComma": "es5",
     "semi": false,

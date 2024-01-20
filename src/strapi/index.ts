@@ -42,8 +42,6 @@ export default async function run(data: InitialInput) {
       },
     ])
 
-    database.dbclient = dbclient as Dbclient
-
     if (dbclient === 'sqlite') {
       let { dbfile } = await inquirer.prompt([
         {
@@ -54,28 +52,47 @@ export default async function run(data: InitialInput) {
         },
       ])
 
+      database.dbclient = dbclient
       database.dbfile = dbfile
     } else {
-      for (let prompt of databaseConfig) {
-        let { [prompt.field]: value } = await inquirer.prompt([
-          {
-            type: prompt.type || 'input',
-            name: prompt.field,
-            message: prompt?.message,
-            ...(prompt.field === 'dbport'
-              ? {
-                  default: defaultPorts[database.dbclient as Dbclient],
-                }
-              : prompt.default
-                ? {
-                    default: prompt.default,
-                  }
-                : {}),
-          },
-        ])
+      database = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'dbname',
+          message: 'Database name',
+          default: '.tmp/data.db',
+        },
+        {
+          type: 'input',
+          name: 'dbhost',
+          message: 'Database host',
+          default: '127.0.0.1',
+        },
+        {
+          type: 'input',
+          name: 'dbport',
+          message: 'Database port',
+          default: defaultPorts[dbclient as Dbclient],
+        },
+        {
+          type: 'input',
+          name: 'dbusername',
+          message: 'Database username',
+        },
+        {
+          type: 'password',
+          name: 'dbpassword',
+          message: 'Database password',
+        },
+        {
+          type: 'confirm',
+          name: 'dbpassword',
+          message: 'Database SSL',
+          default: false,
+        },
+      ])
 
-        database[prompt.field] = value
-      }
+      database.dbclient = dbclient
     }
   }
 
@@ -114,40 +131,3 @@ type DatabaseConfigOptions =
 type Dbclient = 'sqlite' | 'postgres' | 'mysql'
 
 type PortType = { [key in Dbclient]: number }
-
-const databaseConfig: Array<{
-  field: DatabaseConfigOptions
-  message: string
-  default?: any
-  type?: string
-}> = [
-  {
-    field: 'dbname',
-    message: 'Database name',
-  },
-  {
-    field: 'dbhost',
-    message: 'Database host',
-    default: '127.0.0.1',
-  },
-  {
-    field: 'dbport',
-    message: 'Database port',
-    default: defaultPorts,
-  },
-  {
-    field: 'dbusername',
-    message: 'Database username',
-  },
-  {
-    field: 'dbpassword',
-    message: 'Database password',
-    type: 'password',
-  },
-  {
-    field: 'dbssl',
-    message: 'Database SSL',
-    type: 'confirm',
-    default: false,
-  },
-]
