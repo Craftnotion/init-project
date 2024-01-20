@@ -1,6 +1,8 @@
 {
   "author": "hsharma1996,craftnotion",
   "type": "commonjs",
+  "version": "0.0.1",
+  "name": "init-project",
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
@@ -52,7 +54,10 @@
   "files": [
     "build/src",
     "build/index.d.ts",
-    "build/index.js"
+    "build/index.js",
+    "LICENSE.md",
+    "package.json",
+    "README.md"
   ],
   "eslintConfig": {
     "extends": [

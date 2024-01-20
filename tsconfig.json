@@ -13,4 +13,5 @@
   },
   "include": ["./**/*"],
   "exclude": ["./node_modules", "./build"],
+  "skipLibCheck": true,
 }
