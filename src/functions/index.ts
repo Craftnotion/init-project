@@ -230,3 +230,13 @@ export async function copyTemplates(projectPath: string) {
 
   fs.writeFileSync(`${projectPath}/validate.js`, validate, 'utf-8')
 }
+
+
+export function isGitCzInstalled(): boolean {
+  try {
+    execSync('git-cz --version', { stdio: 'ignore' })
+    return true
+  } catch (error) {
+    return false
+  }
+}
