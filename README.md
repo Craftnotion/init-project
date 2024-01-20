@@ -35,10 +35,10 @@ npx @craftnotion/init-project
 ```
 
 
-[npm-image]: https://img.shields.io/npm/v/craftnotion/init-project.svg?style=for-the-badge&logo=npm
-[npm-url]: https://npmjs.org/package/craftnotion/init-project "npm"
+[npm-image]: https://img.shields.io/npm/v/@craftnotion/init-project.svg?style=for-the-badge&logo=npm
+[npm-url]: https://npmjs.org/package/@craftnotion/init-project "npm"
 
-[license-image]: https://img.shields.io/npm/l/craftnotion/init-project?color=blueviolet&style=for-the-badge
+[license-image]: https://img.shields.io/npm/l/@craftnotion/init-project?color=blueviolet&style=for-the-badge
 [license-url]: LICENSE.md "license"
 
 [typescript-image]: https://img.shields.io/badge/Typescript-294E80.svg?style=for-the-badge&logo=typescript
