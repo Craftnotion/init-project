@@ -32,6 +32,7 @@ Run the following command to initiate a project setup:
 
 ```bash
 npx @craftnotion/init-project
+```
 
 
 [npm-image]: https://img.shields.io/npm/v/@craftnotion/init-project.svg?style=for-the-badge&logo=npm
