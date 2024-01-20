@@ -3,6 +3,14 @@
   "type": "commonjs",
   "version": "0.0.1-6",
   "name": "@craftnotion/init-project",
+  "keywords": [
+    "management",
+    "react-native",
+    "nextjs",
+    "adonisjs",
+    "strapi",
+    "commit"
+  ],
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
