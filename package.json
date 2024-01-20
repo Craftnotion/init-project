@@ -112,6 +112,7 @@
     "fs-extra": "^11.2.0",
     "getopts": "^2.3.0",
     "inquirer": "^8.0.0",
-    "type-fest": "^4.9.0"
+    "type-fest": "^4.9.0",
+    "validate-npm-package-name": "^5.0.0"
   }
 }
