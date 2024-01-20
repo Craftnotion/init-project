@@ -1,4 +1,5 @@
 {
+  "type": "commonjs",
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
@@ -17,8 +18,9 @@
   "devDependencies": {
     "@adonisjs/mrm-preset": "^5.0.3",
     "@adonisjs/require-ts": "^2.0.13",
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^9.0.7",
     "@types/node": "^20.11.5",
-    "chalk": "^5.3.0",
     "commitizen": "^4.3.0",
     "copyfiles": "^2.4.1",
     "cz-conventional-changelog": "^3.3.0",
@@ -30,9 +32,9 @@
     "github-label-sync": "^2.3.1",
     "husky": "^8.0.3",
     "mrm": "^4.1.22",
-    "np": "^9.2.0",
     "prettier": "^3.2.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "chalk": "^4.1.2"
   },
   "mrmConfig": {
     "core": false,
@@ -45,7 +47,7 @@
   },
   "license": "MIT",
   "main": "build/index.js",
-  "bin": "build/bin.js",
+  "bin": "build/bin/index.js",
   "files": [
     "build/src",
     "build/index.d.ts",
@@ -90,11 +92,15 @@
     "contents": ".",
     "anyBranch": false
   },
+  "resolutions": {
+    "@types/cacheable-request": "^6.0.2",
+    "@types/responselike": "^1.0.0"
+  },
   "dependencies": {
-    "chalk": "^5.3.0",
+    "axios": "^1.6.5",
+    "chalk": "^4.1.2",
     "fs-extra": "^11.2.0",
     "getopts": "^2.3.0",
-    "uninstall": "^0.0.0",
-    "write-package": "^7.0.0"
+    "type-fest": "^4.9.0"
   }
 }

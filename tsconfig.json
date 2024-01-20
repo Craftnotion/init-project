@@ -1,3 +1,16 @@
 {
-  "extends": "./node_modules/@adonisjs/mrm-preset/_tsconfig"
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": true,
+    "isolatedModules": true,
+    "lib": ["ESNext"],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "outDir": "build",
+    "strict": true,
+    "target": "ESNext",
+  },
+  "include": ["./**/*"],
+  "exclude": ["./node_modules", "./build"],
 }
