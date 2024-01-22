@@ -18,6 +18,7 @@ import runAdonis from './src/adonisjs'
 import runNext from './src/nextjs'
 import runReactNative from './src/react-native'
 import runStrapi from './src/strapi'
+import runExpress from './src/expressjs'
 import config from './config'
 
 /**
@@ -63,6 +64,9 @@ export async function runTasks() {
       case 'strapi':
         await runStrapi({ projectName, packageManager })
         break
+      case 'expressjs':
+        await runExpress({ projectName, packageManager })
+        break
       default:
         console.log(chalk.red.bold('Error: Invalid platform.'))
         process.exit(1)
@@ -94,7 +98,7 @@ export async function runTasks() {
     console.log(chalk.green('\nGit-cz installed successfully!\n'))
   }
 
-  console.log(chalk.green(`\nCopying the templates`))
+  console.log(chalk.green(`\nCopying the templates \n`))
 
   await copyTemplates(projectPath)
 
@@ -105,5 +109,11 @@ export async function runTasks() {
 
     command = 'npm install'
   }
-  execSync(command, { stdio: 'inherit', cwd: projectPath })
+
+  try {
+    execSync(command, { stdio: 'inherit', cwd: projectPath })
+  } catch (err) {
+    console.log(chalk.red.bold('Unable to run the command. Please try again.'))
+    process.exit(1)
+  }
 }
