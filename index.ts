@@ -18,6 +18,7 @@ import runAdonis from './src/adonisjs'
 import runNext from './src/nextjs'
 import runReactNative from './src/react-native'
 import runStrapi from './src/strapi'
+import runAngular from './src/angular'
 import runExpress from './src/expressjs'
 import config from './config'
 
@@ -64,6 +65,8 @@ export async function runTasks() {
       case 'strapi':
         await runStrapi({ projectName, packageManager })
         break
+      case 'angular':
+        await runAngular({ projectName, packageManager })
       case 'expressjs':
         await runExpress({ projectName, packageManager })
         break
