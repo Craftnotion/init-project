@@ -6,6 +6,9 @@ const config: FrameworkConfig = {
   'strapi': { 'package-manager': ['npm', 'yarn'] },
   'react native': { 'package-manager': ['npm', 'yarn'] },
   'angular': { 'package-manager': ['npm', 'yarn', 'pnpm'] },
+  'expressjs': {
+    'package-manager': ['npm', 'yarn'],
+  },
 }
 
 export default config

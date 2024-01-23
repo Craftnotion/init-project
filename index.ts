@@ -19,6 +19,7 @@ import runNext from './src/nextjs'
 import runReactNative from './src/react-native'
 import runStrapi from './src/strapi'
 import runAngular from './src/angular'
+import runExpress from './src/expressjs'
 import config from './config'
 
 /**
@@ -66,6 +67,8 @@ export async function runTasks() {
         break
       case 'angular':
         await runAngular({ projectName, packageManager })
+      case 'expressjs':
+        await runExpress({ projectName, packageManager })
         break
       default:
         console.log(chalk.red.bold('Error: Invalid platform.'))
@@ -98,7 +101,7 @@ export async function runTasks() {
     console.log(chalk.green('\nGit-cz installed successfully!\n'))
   }
 
-  console.log(chalk.green(`\nCopying the templates`))
+  console.log(chalk.green(`\nCopying the templates \n`))
 
   await copyTemplates(projectPath)
 
@@ -109,5 +112,11 @@ export async function runTasks() {
 
     command = 'npm install'
   }
-  execSync(command, { stdio: 'inherit', cwd: projectPath })
+
+  try {
+    execSync(command, { stdio: 'inherit', cwd: projectPath })
+  } catch (err) {
+    console.log(chalk.red.bold('Unable to run the command. Please try again.'))
+    process.exit(1)
+  }
 }
