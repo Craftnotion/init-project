@@ -67,6 +67,7 @@ export async function runTasks() {
         break
       case 'angular':
         await runAngular({ projectName, packageManager })
+        break
       case 'expressjs':
         await runExpress({ projectName, packageManager })
         break
