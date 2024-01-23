@@ -18,6 +18,7 @@ import runAdonis from './src/adonisjs'
 import runNext from './src/nextjs'
 import runReactNative from './src/react-native'
 import runStrapi from './src/strapi'
+import runAngular from './src/angular'
 import config from './config'
 
 /**
@@ -62,6 +63,9 @@ export async function runTasks() {
         break
       case 'strapi':
         await runStrapi({ projectName, packageManager })
+        break
+      case 'angular':
+        await runAngular({ projectName, packageManager })
         break
       default:
         console.log(chalk.red.bold('Error: Invalid platform.'))
