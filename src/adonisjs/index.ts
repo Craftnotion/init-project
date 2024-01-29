@@ -1,6 +1,21 @@
 import { execSync } from 'child_process'
 import inquirer from 'inquirer'
 
+export class adonisjs {
+
+  public packageManager: string
+  public projectName: string
+  public SupportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
+
+  constructor(packageManager: string, projectName: string) {
+    this.packageManager = packageManager
+    this.projectName = projectName
+  }
+
+
+  public async handle() { }
+
+}
 export const SupportedPackageManagers = ['npm', 'yarn', 'pnpm']
 
 export default async function run(data: InitialInput) {
