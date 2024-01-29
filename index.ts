@@ -14,12 +14,6 @@ import {
   isGitCzInstalled,
 } from './src/functions'
 
-import runAdonis from './src/adonisjs'
-import runNext from './src/nextjs'
-import runReactNative from './src/react-native'
-import runStrapi from './src/strapi'
-import runAngular from './src/angular'
-import runExpress from './src/expressjs'
 import config from './config'
 
 /**
@@ -46,37 +40,24 @@ export async function runTasks() {
 
   const platform = await askFramework()
 
+  const PlatformClass = await import(`./src/${platform}`).catch(console.log)
+
+  if (!PlatformClass) {
+    console.log(chalk.red.bold(`\nError: ${platform} is not a valid platform.`))
+    process.exit(1)
+  }
+
   const packageManager = await askPackageManager(
     getPackageManager(process.cwd()),
-    config[platform]['package-manager']
+    PlatformClass.default.supportedPackageManagers
   )
 
+  const platformInstance = new PlatformClass.default({ projectName, packageManager })
+
   try {
-    switch (platform) {
-      case 'adonisjs':
-        await runAdonis({ projectName, packageManager })
-        break
-      case 'nextjs':
-        await runNext({ projectName, packageManager })
-        break
-      case 'react native':
-        await runReactNative({ projectName, packageManager })
-        break
-      case 'strapi':
-        await runStrapi({ projectName, packageManager })
-        break
-      case 'angular':
-        await runAngular({ projectName, packageManager })
-        break
-      case 'expressjs':
-        await runExpress({ projectName, packageManager })
-        break
-      default:
-        console.log(chalk.red.bold('Error: Invalid platform.'))
-        process.exit(1)
-    }
+    await platformInstance.handle()
   } catch (err) {
-    console.log(chalk.red.bold('\nOperation failed. Please try again'))
+    console.log(chalk.red.bold("Couldn't initialize the project. Please try again."))
     process.exit(1)
   }
 

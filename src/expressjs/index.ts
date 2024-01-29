@@ -1,46 +1,49 @@
 import chalk from 'chalk'
-import { execSync } from 'child_process'
 import inquirer from 'inquirer'
+import { Base } from '../base'
 
-export default async function run(data: InitialInput) {
-  let { projectName } = data
+export default class Expressjs extends Base {
+  public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn']
 
-  let command = 'npx express-generator'
+  constructor(data: InitialInput) {
+    let { projectName } = data
+    super(`npx express-generator ${projectName}`)
 
-  console.log(chalk.yellowBright('Please make sure you have python installed'))
-
-  const { needView } = await inquirer.prompt({
-    type: 'confirm',
-    name: 'needView',
-    message: 'Do you need templating engine ?',
-    default: true,
-  })
-
-  if (needView) {
-    const { view } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'view',
-        message: 'Select templating engine',
-        choices: ['ejs', 'hbs', 'hjs', 'jade', 'pug', 'twig', 'vash'],
-        default: 'ejs',
-      },
-    ])
-
-    const { css } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'css',
-        message: 'Select templating engine',
-        choices: ['css', 'less', 'sass', 'compass', 'stylus'],
-        default: 'css',
-      },
-    ])
-
-    command += ` --view=${view} --css=${css}`
+    console.log(chalk.yellowBright('Please make sure you have python installed'))
   }
 
-  execSync(`${command} ${projectName}`, {
-    stdio: 'inherit',
-  })
+  public async handle() {
+    const { needView } = await inquirer.prompt({
+      type: 'confirm',
+      name: 'needView',
+      message: 'Do you need templating engine ?',
+      default: true,
+    })
+
+    if (needView) {
+      const { view } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'view',
+          message: 'Select templating engine',
+          choices: ['ejs', 'hbs', 'hjs', 'jade', 'pug', 'twig', 'vash'],
+          default: 'ejs',
+        },
+      ])
+
+      const { css } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'css',
+          message: 'Select templating engine',
+          choices: ['css', 'less', 'sass', 'compass', 'stylus'],
+          default: 'css',
+        },
+      ])
+
+      this.updateCommand('alias', { css, view })
+    }
+
+    await this.scaffold()
+  }
 }

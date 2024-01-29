@@ -1,43 +1,72 @@
-import { execSync } from 'child_process'
 import inquirer from 'inquirer'
+import { Base } from '../base';
 
-export class adonisjs {
+export class adonisjs extends Base {
 
-  public packageManager: string
-  public projectName: string
-  public SupportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
+  public static SupportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
 
-  constructor(packageManager: string, projectName: string) {
-    this.packageManager = packageManager
-    this.projectName = projectName
+  constructor(data: InitialInput) {
+
+    let { packageManager, projectName } = data;
+
+    super(packageManager)
+
+    switch (packageManager) {
+      case 'npm':
+        this.command += ` init adonis-ts-app ${projectName} -- --name=${projectName}`
+        break
+      case 'yarn':
+        this.command += ` create adonis-ts-app ${projectName} -- --name=${projectName}`
+        break
+      case 'pnpm':
+        this.command += ` create adonis-ts-app ${projectName} -- --name=${projectName}`
+        break
+    }
+
   }
 
 
-  public async handle() { }
+  public async handle() {
 
-}
-export const SupportedPackageManagers = ['npm', 'yarn', 'pnpm']
+    const { boilerplate } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'boilerplate',
+        message: 'Select the project boilerplate:',
+        choices: ['api', 'web', 'slim'],
+      },
+    ]);
+    const { eslint } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'eslint',
+        message: 'Setup eslint?:',
+        default: false,
+      },
+    ]);
 
-export default async function run(data: InitialInput) {
-  let { packageManager, projectName } = data
+    this.updateCommand('alias', { boilerplate, eslint });
 
-  let command =
-    packageManager === 'yarn'
-      ? 'yarn create adonis-ts-app'
-      : packageManager === 'pnpm'
-        ? 'pnpm create adonis-ts-app'
-        : 'npm init adonis-ts-app'
+    const { encore, prettier } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'prettier',
+        message: 'Setup prettier?:',
+        default: false,
+        when: eslint,
+      },
+      {
+        type: 'confirm',
+        name: 'encore',
+        message: 'Configure webpack encore for compiling frontend assets?',
+        default: false,
+        when: boilerplate === 'web',
+      },
+    ]);
 
-  const { boilerplate } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'boilerplate',
-      message: 'Select the project boilerplate:',
-      choices: ['api', 'web', 'slim'],
-    },
-  ])
+    this.updateCommand('alias', { encore, prettier });
 
-  execSync(`${command} ${projectName} -- --boilerplate=${boilerplate} --name=${projectName}`, {
-    stdio: 'inherit',
-  })
+    await this.scaffold();
+
+  }
 }
