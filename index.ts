@@ -66,12 +66,14 @@ export async function runTasks() {
   }
 
   const platform = await askFramework()
-  const PlatformClass = await import(`./src/${platform}`).catch(console.log)
+  const PlatformClass = await import(`./src/${platform.toLocaleLowerCase()}`).catch(console.log)
 
   if (!PlatformClass) {
     console.log(chalk.red.bold(`\nError: ${platform} is not a valid platform.`))
     process.exit(1)
   }
+
+  console.log(PlatformClass)
 
   const packageManager = await askPackageManager(
     getPackageManager(process.cwd()),
