@@ -12,21 +12,21 @@ export default class Nextjs extends Base {
     let { packageManager = 'npm', projectName } = data
 
     super(packageManager)
+    this.command += this.baseCommand(packageManager, projectName);
 
-    switch (packageManager) {
-      case 'npm':
-        this.command += ` init create-next-app ${projectName}`
-        break
-      case 'yarn':
-        this.command += ` create next-app ${projectName}`
-        break
-      case 'pnpm':
-        this.command += ` create next-app ${projectName}`
-        break
-    }
+  }
+
+  private baseCommand(packageManager: PackageManager, projectName: string): string {
+    const commandMap: { [key in PackageManager]: string } = {
+      'npm': ` init create-next-app ${projectName}`,
+      'yarn': ` create next-app ${projectName}`,
+      'pnpm': ` create next-app ${projectName}`
+    };
+    return commandMap[packageManager];
   }
 
   public async handle() {
+
     const useTypeScript = await askUseTypeScript()
 
     const data = await inquirer.prompt([
@@ -57,17 +57,15 @@ export default class Nextjs extends Base {
     ])
 
     //Nextjs does not use boolean. So we have to do this
+    let options = []
+
     Object.keys(data).map((key) => {
-      if (data[key]) {
-        data[key] = undefined
-      } else {
-        data[key] += `--no-${key}`
-      }
+      options.push(data[key] ? key : `no-${key}`)
     })
 
-    data[useTypeScript ? 'ts' : 'js'] = undefined
+    options.push(useTypeScript ? 'ts' : 'js')
 
-    this.updateCommand('alias', data)
+    this.updateCommand('alias', options)
 
     let { alias } = await inquirer.prompt({
       type: 'input',

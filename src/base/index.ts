@@ -9,10 +9,30 @@ export class Base {
 
   protected updateCommand(
     type: 'alias' | 'option',
-    data: { [key: string]: undefined | string | boolean }
+    data: { [key: string]: undefined | string | boolean } | string | Array<string>
   ) {
-    for (const [key, value] of Object.entries(data))
-      this.command = `${this.command} ${type === 'alias' ? '--' : '-'}${key}${value === undefined ? '' : `=${String(value)}`}`
+    // Add prefix based on type
+    const prefix = type === 'alias' ? ' --' : ' -'
+
+    // If data is an array, append each item with prefix to the command
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        this.command += `${prefix}${item}`
+      })
+      return
+    }
+
+    // If data is a string, simply append it to the command
+    if (typeof data === 'string') {
+      this.command += `${prefix}${data}`
+      return
+    }
+
+    // If data is an object, iterate over its entries
+    Object.entries(data).forEach(([key, value]) => {
+      // If value is not undefined, append key=value, otherwise just append key
+      this.command += `${prefix}${key}${value !== undefined ? `=${value}` : ''}`
+    })
   }
 
   protected scaffold() {

@@ -1,28 +1,22 @@
-import inquirer from 'inquirer'
+import inquirer from 'inquirer';
 import { Base } from '../base';
 
-export class adonisjs extends Base {
-
-  public static SupportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
+export class Adonisjs extends Base {
+  public static SupportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm'];
 
   constructor(data: InitialInput) {
+    const { packageManager, projectName } = data;
+    super(packageManager);
+    this.command += this.baseCommand(packageManager, projectName);
+  }
 
-    let { packageManager, projectName } = data;
-
-    super(packageManager)
-
-    switch (packageManager) {
-      case 'npm':
-        this.command += ` init adonis-ts-app ${projectName} -- --name=${projectName}`
-        break
-      case 'yarn':
-        this.command += ` create adonis-ts-app ${projectName} -- --name=${projectName}`
-        break
-      case 'pnpm':
-        this.command += ` create adonis-ts-app ${projectName} -- --name=${projectName}`
-        break
-    }
-
+  private baseCommand(packageManager: PackageManager, projectName: string): string {
+    const commandMap: Record<PackageManager, string> = {
+      'npm': ` init adonis-ts-app ${projectName} -- --name=${projectName}`,
+      'yarn': ` create adonis-ts-app ${projectName} -- --name=${projectName}`,
+      'pnpm': ` create adonis-ts-app ${projectName} -- --name=${projectName}`
+    };
+    return commandMap[packageManager];
   }
 
 
@@ -36,6 +30,7 @@ export class adonisjs extends Base {
         choices: ['api', 'web', 'slim'],
       },
     ]);
+
     const { eslint } = await inquirer.prompt([
       {
         type: 'confirm',
@@ -44,6 +39,8 @@ export class adonisjs extends Base {
         default: false,
       },
     ]);
+
+
 
     this.updateCommand('alias', { boilerplate, eslint });
 
@@ -67,6 +64,5 @@ export class adonisjs extends Base {
     this.updateCommand('alias', { encore, prettier });
 
     await this.scaffold();
-
   }
 }
