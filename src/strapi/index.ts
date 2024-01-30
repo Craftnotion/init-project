@@ -1,6 +1,6 @@
 import inquirer from 'inquirer'
 import { Base } from '../base'
-import { askUseTypeScript } from '../functions'
+import { askUseTypeScript } from '../../functions'
 
 export default class Strapi extends Base {
   public static supportedPackageManagers: Array<Exclude<PackageManager, 'pnpm'>> = ['npm', 'yarn']
