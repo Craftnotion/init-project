@@ -14,13 +14,37 @@ import {
   isGitCzInstalled,
 } from './src/functions'
 
-import runAdonis from './src/adonisjs'
-import runNext from './src/nextjs'
-import runReactNative from './src/react-native'
-import runStrapi from './src/strapi'
-import runAngular from './src/angular'
-import runExpress from './src/expressjs'
-import config from './config'
+async function initializeProject(projectPath: string, projectName: string) {
+  console.log(chalk.green(`\nInitializing GIT and adding necessary packages to ${projectName}...`))
+  await updatePkg(projectPath, 'devDependencies', { chalk: '^4.1.2' })
+  execSync('git init', { stdio: 'inherit', cwd: projectPath })
+  execSync('npx husky-init', { stdio: 'inherit', cwd: projectPath })
+  console.log(
+    chalk.green(`\nHusky and commit message template added successfully to ${projectName}!`)
+  )
+}
+
+async function installGitCz(projectPath: string) {
+  if (!isGitCzInstalled()) {
+    console.log(chalk.yellow('\nGit-cz is not installed. Installing globally...'))
+    await updatePkg(projectPath, 'devDependencies', { 'git-cz': '' })
+    console.log(chalk.green('\nGit-cz installed successfully!'))
+  }
+}
+
+async function runPackageManager(projectPath: string, packageManager: string) {
+  let command = handlePackageManager(projectPath, packageManager)
+  if (!command) {
+    console.log(chalk.green(`\nUnable to identify the package manager, Using NPM`))
+    command = 'npm install'
+  }
+  try {
+    execSync(command, { stdio: 'inherit', cwd: projectPath })
+  } catch (err) {
+    console.log(chalk.red.bold('Unable to run the command. Please try again.'))
+    process.exit(1)
+  }
+}
 
 /**
  * Running all the tasks to create a new project.
@@ -28,10 +52,7 @@ import config from './config'
 export async function runTasks() {
   console.log(chalk.bold('\nWelcome to Project Initialization Wizard!'))
 
-  const projectName = await askProjectName().catch((err) => {
-    console.log(chalk.red.bold(err))
-    process.exit(1)
-  })
+  const projectName = await askProjectName()
 
   const projectPath = path.join(process.cwd(), projectName)
 
@@ -45,79 +66,35 @@ export async function runTasks() {
   }
 
   const platform = await askFramework()
+  const PlatformClass = await import(`./src/${platform}`).catch(console.log)
+
+  if (!PlatformClass) {
+    console.log(chalk.red.bold(`\nError: ${platform} is not a valid platform.`))
+    process.exit(1)
+  }
 
   const packageManager = await askPackageManager(
     getPackageManager(process.cwd()),
-    config[platform]['package-manager']
+    PlatformClass.default.supportedPackageManagers
   )
+  const platformInstance = new PlatformClass.default({ projectName, packageManager })
 
   try {
-    switch (platform) {
-      case 'adonisjs':
-        await runAdonis({ projectName, packageManager })
-        break
-      case 'nextjs':
-        await runNext({ projectName, packageManager })
-        break
-      case 'react native':
-        await runReactNative({ projectName, packageManager })
-        break
-      case 'strapi':
-        await runStrapi({ projectName, packageManager })
-        break
-      case 'angular':
-        await runAngular({ projectName, packageManager })
-        break
-      case 'expressjs':
-        await runExpress({ projectName, packageManager })
-        break
-      default:
-        console.log(chalk.red.bold('Error: Invalid platform.'))
-        process.exit(1)
-    }
+    await platformInstance.handle()
   } catch (err) {
-    console.log(chalk.red.bold('\nOperation failed. Please try again'))
+    console.log(chalk.red.bold("Couldn't initialize the project. Please try again."))
     process.exit(1)
   }
 
-  console.log(
-    chalk.green(`\nInitializing GIT and adding necessary packages to ${projectName}...\n`)
-  )
+  await initializeProject(projectPath, projectName).catch(() => {
+    console.log(chalk.red.bold("Couldn't initialize the project. Please try again."))
+    process.exit(1)
+  })
 
-  await updatePkg(projectPath, 'devDependencies', { chalk: '^4.1.2' })
-
-  execSync('git init', { stdio: 'inherit', cwd: projectPath })
-
-  execSync('npx husky-init', { stdio: 'inherit', cwd: projectPath })
-
-  console.log(
-    chalk.green(`\nHusky and commit message template added successfully to ${projectName}!\n`)
-  )
-
-  if (!isGitCzInstalled()) {
-    console.log(chalk.yellow('\nGit-cz is not installed. Installing globally...\n'))
-
-    await updatePkg(projectPath, 'devDependencies', { 'git-cz': '' })
-
-    console.log(chalk.green('\nGit-cz installed successfully!\n'))
-  }
+  await installGitCz(projectPath)
 
   console.log(chalk.green(`\nCopying the templates \n`))
-
   await copyTemplates(projectPath)
 
-  let command = handlePackageManager(projectPath, packageManager)
-
-  if (!command) {
-    console.log(chalk.green(`\nUnable to identify the package manager, Using NPM`))
-
-    command = 'npm install'
-  }
-
-  try {
-    execSync(command, { stdio: 'inherit', cwd: projectPath })
-  } catch (err) {
-    console.log(chalk.red.bold('Unable to run the command. Please try again.'))
-    process.exit(1)
-  }
+  await runPackageManager(projectPath, packageManager)
 }

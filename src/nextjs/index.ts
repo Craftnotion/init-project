@@ -1,60 +1,81 @@
-import { execSync } from 'child_process'
-import { askUseTypeScript } from '../functions'
 import inquirer from 'inquirer'
+import { Base } from '../base'
+import { askUseTypeScript } from '../functions'
 
-export const SupportedPackageManagers = ['npm', 'yarn', 'pnpm']
+export default class Nextjs extends Base {
+  public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
 
-export default async function run(data: InitialInput) {
-  let { packageManager, projectName } = data
+  /**
+   * Base command for adonisjs
+   */
+  constructor(data: InitialInput) {
+    let { packageManager = 'npm', projectName } = data
 
-  let command =
-    packageManager === 'yarn'
-      ? 'yarn create next-app'
-      : packageManager === 'pnpm'
-        ? 'pnpm create next-app'
-        : 'npx init create-next-app'
+    super(packageManager)
+    this.command += this.baseCommand(packageManager, projectName)
+  }
 
-  const useTypeScript = await askUseTypeScript()
+  private baseCommand(packageManager: PackageManager, projectName: string): string {
+    const commandMap: { [key in PackageManager]: string } = {
+      npm: ` init create-next-app ${projectName}`,
+      yarn: ` create next-app ${projectName}`,
+      pnpm: ` create next-app ${projectName}`,
+    }
+    return commandMap[packageManager]
+  }
 
-  const { tailwind } = await inquirer.prompt({
-    type: 'confirm',
-    name: 'tailwind',
-    message: 'Initialize with Tailwind CSS config. (default)',
-    default: false,
-  })
+  public async handle() {
+    const useTypeScript = await askUseTypeScript()
 
-  const { eslint } = await inquirer.prompt({
-    type: 'confirm',
-    name: 'eslint',
-    message: 'Enable/disable eslint setup:',
-    default: true,
-  })
+    const data = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'tailwind',
+        message: 'Initialize with Tailwind CSS config. (default)',
+        default: false,
+      },
+      {
+        type: 'confirm',
+        name: 'eslint',
+        message: 'Enable/disable eslint setup:',
+        default: true,
+      },
+      {
+        type: 'confirm',
+        name: 'app',
+        message: 'Initialize as an App Router project.',
+        default: true,
+      },
+      {
+        type: 'confirm',
+        name: 'src-dir',
+        message: 'Initialize inside a `src/` directory',
+        default: true,
+      },
+    ])
 
-  const { app } = await inquirer.prompt({
-    type: 'confirm',
-    name: 'app',
-    message: 'Initialize as an App Router project.',
-    default: true,
-  })
+    //Nextjs does not use boolean. So we have to do this
+    let options = []
 
-  const { srcDir } = await inquirer.prompt({
-    type: 'confirm',
-    name: 'srcDir',
-    message: 'Initialize inside a `src/` directory',
-    default: true,
-  })
+    Object.keys(data).map((key) => {
+      options.push(data[key] ? key : `no-${key}`)
+    })
 
-  const { importAlias } = await inquirer.prompt({
-    type: 'input',
-    name: 'importAlias',
-    message: 'What import alias would you like configured? (default @/*)',
-    default: '@/*',
-    validate: (value) =>
-      /.+\/\*/.test(value) ? true : 'Import alias must follow the pattern <prefix>/*',
-  })
+    options.push(useTypeScript ? 'ts' : 'js')
 
-  execSync(
-    `${command} ${projectName} ${useTypeScript ? '--ts' : '--js'} ${tailwind ? '--tailwind' : '--no-tailwind'} ${eslint ? '--eslint' : '--no-eslint'} ${app ? '--app' : '--no-app'} ${srcDir ? '--src-dir' : '--no-src-dir'} ${`--import-alias ${importAlias}`}`,
-    { stdio: 'inherit' }
-  )
+    this.updateCommand('alias', options)
+
+    let { alias } = await inquirer.prompt({
+      type: 'input',
+      name: 'alias',
+      message: 'What import alias would you like configured? (default @/*)',
+      default: '@/*',
+      validate: (value) =>
+        /.+\/\*/.test(value) ? true : 'Import alias must follow the pattern <prefix>/*',
+    })
+
+    this.updateCommand('alias', { 'import-alias': alias || '@/*' })
+
+    await this.scaffold()
+  }
 }
