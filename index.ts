@@ -12,7 +12,7 @@ import {
   updatePkg,
   copyTemplates,
   isGitCzInstalled,
-} from './src/functions'
+} from './functions'
 
 async function initializeProject(projectPath: string, projectName: string) {
   console.log(chalk.green(`\nInitializing GIT and adding necessary packages to ${projectName}...`))

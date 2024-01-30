@@ -1,6 +1,6 @@
 import inquirer from 'inquirer'
 import { Base } from '../base'
-import { askUseTypeScript } from '../functions'
+import { askUseTypeScript } from '../../functions'
 
 export default class Nextjs extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']

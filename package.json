@@ -68,6 +68,7 @@
   "bin": "build/bin/index.js",
   "files": [
     "build/src",
+    "build/functions",
     "build/templates",
     "build/index.d.ts",
     "build/index.js",
