@@ -1,22 +1,29 @@
-import { execSync } from 'child_process'
 import inquirer from 'inquirer'
 
-export const SupportedPackageManagers = ['npm', 'yarn']
+import { Base } from '../base'
 
-export default async function run(data: InitialInput) {
-  let { packageManager, projectName } = data
+export default class ReactNative extends Base {
+  public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn']
 
-  let command =
-    packageManager === 'yarn' ? 'npx react-native@latest init' : 'npx react-native@latest init'
+  /**
+   * Base command for adonisjs
+   */
+  constructor(data: InitialInput) {
+    let { packageManager = 'npm', projectName } = data
 
-  const { pods } = await inquirer.prompt({
-    type: 'confirm',
-    name: 'pods',
-    message: 'Do you want to install CocoaPods now?',
-    default: true,
-  })
+    super(`npx react-native@latest init ${projectName} --pm=${packageManager}`)
+  }
 
-  execSync(`${command} ${projectName} --install-pods=${pods} --pm=${packageManager}`, {
-    stdio: 'inherit',
-  })
+  public async handle() {
+    const data = await inquirer.prompt<{ 'install-pods': boolean }>({
+      type: 'confirm',
+      name: 'install-pods',
+      message: 'Do you want to install CocoaPods now?',
+      default: true,
+    })
+
+    this.updateCommand('alias', data)
+
+    await this.scaffold()
+  }
 }

@@ -1,113 +1,137 @@
-import { execSync } from 'child_process'
 import inquirer from 'inquirer'
-
+import { Base } from '../base'
 import { askUseTypeScript } from '../functions'
 
-export const SupportedPackageManagers = ['npm', 'yarn']
+export default class Strapi extends Base {
+  public static supportedPackageManagers: Array<Exclude<PackageManager, 'pnpm'>> = ['npm', 'yarn']
 
-export default async function run(data: InitialInput) {
-  let { packageManager, projectName } = data
+  /**
+   * Base command for adonisjs
+   */
+  constructor(data: InitialInput) {
+    const { packageManager = 'npm', projectName } = data
 
-  let database = {} as { [key in DatabaseConfigOptions]: string }
+    super(packageManager === 'npm' ? 'npx' : packageManager)
 
-  let command =
-    packageManager === 'yarn' ? 'yarn create strapi-app' : 'npx create-strapi-app@latest'
+    if (packageManager === 'pnpm') return
 
-  const useTypeScript = await askUseTypeScript()
-
-  const { quick } = await inquirer.prompt({
-    type: 'list',
-    name: 'quick',
-    message: 'Choose your installation type',
-    choices: [
-      {
-        name: 'Quickstart (recommended)',
-        value: true,
-      },
-      {
-        name: 'Custom (manual settings)',
-        value: false,
-      },
-    ],
-  })
-
-  if (!quick) {
-    const { dbclient } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'dbclient',
-        message: 'Database client',
-        choices: ['sqlite', 'postgres', 'mysql'],
-        default: 'sqlite',
-      },
-    ])
-
-    if (dbclient === 'sqlite') {
-      let { dbfile } = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'dbfile',
-          message: 'Database file path for sqlite',
-          default: '.tmp/data.db',
-        },
-      ])
-
-      database.dbclient = dbclient
-      database.dbfile = dbfile
-    } else {
-      database = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'dbname',
-          message: 'Database name',
-          default: '.tmp/data.db',
-        },
-        {
-          type: 'input',
-          name: 'dbhost',
-          message: 'Database host',
-          default: '127.0.0.1',
-        },
-        {
-          type: 'input',
-          name: 'dbport',
-          message: 'Database port',
-          default: defaultPorts[dbclient as Dbclient],
-        },
-        {
-          type: 'input',
-          name: 'dbusername',
-          message: 'Database username',
-        },
-        {
-          type: 'password',
-          name: 'dbpassword',
-          message: 'Database password',
-        },
-        {
-          type: 'confirm',
-          name: 'dbpassword',
-          message: 'Database SSL',
-          default: false,
-        },
-      ])
-
-      database.dbclient = dbclient
-    }
+    this.command += this.baseCommand(packageManager, projectName)
   }
 
-  execSync(
-    `${command} ${projectName.trim()} ${quick ? '--quickstart' : ''} ${
-      !quick
-        ? `${Object.keys(database)
-            .map((key: string) => `--${key}=${database[key as DatabaseConfigOptions]}`)
-            .join(' ')}`
-        : ''
-    } --no-run ${useTypeScript ? '--ts' : ''}`,
-    {
-      stdio: 'inherit',
+  private baseCommand(
+    packageManager: Exclude<PackageManager, 'pnpm'>,
+    projectName: string
+  ): string {
+    const commandMap: Record<Exclude<PackageManager, 'pnpm'>, string> = {
+      npm: ` create-strapi-app@latest ${projectName}`,
+      yarn: ` create strapi-app ${projectName}`,
     }
-  )
+    return commandMap[packageManager]
+  }
+
+  public async handle() {
+    const useTypeScript = await askUseTypeScript()
+
+    if (useTypeScript) {
+      this.updateCommand('alias', 'typescript')
+    }
+
+    this.updateCommand('alias', 'no-run')
+
+    const { quick } = await this.promptInstallationType()
+
+    if (!quick) {
+      const { dbclient } = await this.promptDatabaseClient()
+
+      if (dbclient === 'sqlite') {
+        const { dbfile } = await this.promptDatabaseFilePath()
+        this.updateCommand('alias', { dbclient, dbfile })
+      } else {
+        const database = await this.promptDatabaseDetails(dbclient)
+        this.updateCommand('alias', { ...database, dbclient })
+      }
+    } else {
+      this.updateCommand('alias', 'quickstart')
+    }
+
+    await this.scaffold()
+  }
+
+  private async promptInstallationType() {
+    return await inquirer.prompt({
+      type: 'list',
+      name: 'quick',
+      message: 'Choose your installation type',
+      choices: [
+        {
+          name: 'Quickstart (recommended)',
+          value: true,
+        },
+        {
+          name: 'Custom (manual settings)',
+          value: false,
+        },
+      ],
+    })
+  }
+
+  private async promptDatabaseClient() {
+    return await inquirer.prompt({
+      type: 'list',
+      name: 'dbclient',
+      message: 'Database client',
+      choices: ['sqlite', 'postgres', 'mysql'],
+      default: 'sqlite',
+    })
+  }
+
+  private async promptDatabaseFilePath() {
+    return await inquirer.prompt({
+      type: 'input',
+      name: 'dbfile',
+      message: 'Database file path for sqlite',
+      default: '.tmp/data.db',
+    })
+  }
+
+  private async promptDatabaseDetails(dbclient: string) {
+    return await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'dbname',
+        message: 'Database name',
+        default: 'default',
+      },
+      {
+        type: 'input',
+        name: 'dbhost',
+        message: 'Database host',
+        default: '127.0.0.1',
+      },
+      {
+        type: 'input',
+        name: 'dbport',
+        message: 'Database port',
+        default: defaultPorts[dbclient as Dbclient],
+      },
+      {
+        type: 'input',
+        name: 'dbusername',
+        message: 'Database username',
+      },
+      {
+        type: 'password',
+        name: 'dbpassword',
+        message: 'Database password',
+      },
+      {
+        type: 'confirm',
+        name: 'dbssl',
+        message: 'Database SSL',
+        default: false,
+      },
+    ])
+  }
 }
 
 const defaultPorts: PortType = {
@@ -115,18 +139,6 @@ const defaultPorts: PortType = {
   mysql: 3306,
   sqlite: 3306,
 }
-
-type DatabaseConfigOptions =
-  | 'dbclient'
-  | 'dbusername'
-  | 'dbname'
-  | 'dbhost'
-  | 'dbport'
-  | 'dbuser'
-  | 'dbpassword'
-  | 'dbssl'
-  | 'dbfile'
-  | 'dbforce'
 
 type Dbclient = 'sqlite' | 'postgres' | 'mysql'
 

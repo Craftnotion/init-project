@@ -71,7 +71,6 @@
     "build/templates",
     "build/index.d.ts",
     "build/index.js",
-    "build/config.js",
     "LICENSE.md",
     "package.json",
     "README.md"

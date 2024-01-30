@@ -68,7 +68,14 @@ export async function askFramework(): Promise<Framework> {
     type: 'list',
     name: 'platform',
     message: 'Select the platform to create:',
-    choices: ['AdonisJS', 'Nextjs', 'Strapi', 'React Native', 'Angular', 'ExpressJs'],
+    choices: [
+      'AdonisJS',
+      'Nextjs',
+      'Strapi',
+      { value: 'react-native', name: 'React Native' },
+      'Angular',
+      'ExpressJs',
+    ],
   })
   return platform.toLowerCase() as Framework
 }
