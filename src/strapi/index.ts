@@ -3,29 +3,30 @@ import { Base } from '../base'
 import { askUseTypeScript } from '../functions'
 
 export default class Strapi extends Base {
-  public static supportedPackageManagers: Array<Exclude<PackageManager, 'pnpm'>> = ['npm', 'yarn',]
+  public static supportedPackageManagers: Array<Exclude<PackageManager, 'pnpm'>> = ['npm', 'yarn']
 
   /**
    * Base command for adonisjs
    */
   constructor(data: InitialInput) {
-
     const { packageManager = 'npm', projectName } = data
 
     super(packageManager === 'npm' ? 'npx' : packageManager)
 
-    if (packageManager === "pnpm") return;
+    if (packageManager === 'pnpm') return
 
-    this.command += this.baseCommand(packageManager, projectName);
-
+    this.command += this.baseCommand(packageManager, projectName)
   }
 
-  private baseCommand(packageManager: Exclude<PackageManager, 'pnpm'>, projectName: string): string {
+  private baseCommand(
+    packageManager: Exclude<PackageManager, 'pnpm'>,
+    projectName: string
+  ): string {
     const commandMap: Record<Exclude<PackageManager, 'pnpm'>, string> = {
-      'npm': ` create-strapi-app@latest ${projectName}`,
-      'yarn': ` create strapi-app ${projectName}`
-    };
-    return commandMap[packageManager];
+      npm: ` create-strapi-app@latest ${projectName}`,
+      yarn: ` create strapi-app ${projectName}`,
+    }
+    return commandMap[packageManager]
   }
 
   public async handle() {
