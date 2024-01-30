@@ -1,25 +1,44 @@
 import inquirer from 'inquirer'
 import { Base } from '../base'
 
-export class Adonisjs extends Base {
-  public static SupportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
+export default class Adonisjs extends Base {
+  public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
+
+  public packageManager: PackageManager
+  public projectName: string
 
   constructor(data: InitialInput) {
     const { packageManager, projectName } = data
+
     super(packageManager)
-    this.command += this.baseCommand(packageManager, projectName)
+
+    this.packageManager = packageManager
+    this.projectName = projectName
   }
 
-  private baseCommand(packageManager: PackageManager, projectName: string): string {
+  private baseCommand(
+    packageManager: PackageManager,
+    projectName: string,
+    version: string
+  ): string {
     const commandMap: Record<PackageManager, string> = {
-      npm: ` init adonis-ts-app ${projectName} -- --name=${projectName}`,
-      yarn: ` create adonis-ts-app ${projectName} -- --name=${projectName}`,
-      pnpm: ` create adonis-ts-app ${projectName} -- --name=${projectName}`,
+      npm: ` init ${version === 'v5' ? 'adonis-ts-app' : 'adonisjs'} ${projectName} --`,
+      yarn: ` create ${version === 'v5' ? 'adonis-ts-app' : 'adonisjs'} ${projectName} --`,
+      pnpm: ` create ${version === 'v5' ? 'adonis-ts-app' : 'adonisjs'} ${projectName} --`,
     }
     return commandMap[packageManager]
   }
 
   public async handle() {
+    const { version } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'version',
+        message: 'Select the adonisjs version:',
+        choices: ['v5', 'v6'],
+      },
+    ])
+
     const { boilerplate } = await inquirer.prompt([
       {
         type: 'list',
@@ -29,6 +48,19 @@ export class Adonisjs extends Base {
       },
     ])
 
+    if (version === 'v5') {
+      await this.handleVersion5(boilerplate)
+      return
+    }
+
+    this.command += this.baseCommand(this.packageManager, this.projectName, version)
+
+    await this.handleVersion6(boilerplate)
+  }
+
+  private async handleVersion5(boilerplate: string) {
+    this.updateCommand('alias', { name: this.projectName })
+
     const { eslint } = await inquirer.prompt([
       {
         type: 'confirm',
@@ -37,6 +69,7 @@ export class Adonisjs extends Base {
         default: false,
       },
     ])
+
     this.updateCommand('alias', { boilerplate, eslint })
 
     const { encore, prettier } = await inquirer.prompt([
@@ -60,4 +93,73 @@ export class Adonisjs extends Base {
 
     await this.scaffold()
   }
+  private async handleVersion6(boilerplate: string) {
+    this.updateCommand('alias', { kit: boilerplate, pkg: this.packageManager })
+
+    this.updateCommand('alias', 'install')
+
+    const options = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'db',
+        message: 'Define the database dialect to use with Lucid',
+        choices: this.databases,
+      },
+      {
+        type: 'list',
+        name: 'auth-guard',
+        message: 'Define the authentication guard for the Auth package',
+        choices: this.authGuards,
+        when: boilerplate === 'api',
+      },
+    ])
+
+    this.updateCommand('alias', options)
+
+    console.log(this.command)
+
+    await this.scaffold()
+  }
+
+  private databases = [
+    {
+      name: 'SQLite',
+      alias: 'sqlite',
+    },
+    {
+      name: 'MySQL / MariaDB',
+      alias: 'mysql',
+    },
+    {
+      name: 'PostgreSQL',
+      alias: 'postgres',
+    },
+    {
+      name: 'Microsoft SQL Server',
+      alias: 'mssql',
+    },
+    {
+      name: 'Skip',
+      hint: 'I want to configures the Lucid package by myself.',
+      alias: undefined,
+    },
+  ]
+
+  private authGuards = [
+    {
+      name: 'Session',
+      alias: 'session',
+      hint: 'Authenticate users using cookies and session.',
+    },
+    {
+      name: 'Access Token',
+      alias: 'access_tokens',
+      hint: 'Authenticate clients using tokens.',
+    },
+    {
+      name: 'Skip',
+      alias: undefined,
+      hint: 'I want to configures guards by myself.',
+    },
+  ]
 }

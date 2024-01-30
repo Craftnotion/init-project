@@ -8,7 +8,7 @@ export class Base {
   }
 
   protected updateCommand(
-    type: 'alias' | 'option',
+    type: 'alias' | 'flag',
     data: { [key: string]: undefined | string | boolean } | string | Array<string>
   ) {
     // Add prefix based on type

@@ -69,7 +69,7 @@ export async function askFramework(): Promise<Framework> {
     name: 'platform',
     message: 'Select the platform to create:',
     choices: [
-      'AdonisJS',
+      'Adonisjs',
       'Nextjs',
       'Strapi',
       { value: 'react-native', name: 'React Native' },
