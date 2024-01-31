@@ -16,6 +16,8 @@
     "typescript",
     "husky",
     "git-cz",
+    "expressjs",
+    "angular",
     "craftnotion"
   ],
   "scripts": {

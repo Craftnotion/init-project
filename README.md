@@ -13,6 +13,8 @@
    - AdonisJS
    - Strapi
    - React Native
+   - ExpressJs
+   - Angular
 
 2. **Options:**
    - TypeScript support for applicable projects.
