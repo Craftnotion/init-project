@@ -48,14 +48,13 @@ export default class Adonisjs extends Base {
       },
     ])
 
-    if (version === 'v5') {
-      await this.handleVersion5(boilerplate)
-      return
-    }
-
     this.command += this.baseCommand(this.packageManager, this.projectName, version)
 
-    await this.handleVersion6(boilerplate)
+    version === 'v5'
+      ? await this.handleVersion5(boilerplate)
+      : await this.handleVersion6(boilerplate)
+
+    await this.scaffold()
   }
 
   private async handleVersion5(boilerplate: string) {
@@ -90,8 +89,6 @@ export default class Adonisjs extends Base {
     ])
 
     this.updateCommand('alias', { encore, prettier })
-
-    await this.scaffold()
   }
   private async handleVersion6(boilerplate: string) {
     this.updateCommand('alias', { kit: boilerplate, pkg: this.packageManager })
@@ -115,10 +112,6 @@ export default class Adonisjs extends Base {
     ])
 
     this.updateCommand('alias', options)
-
-    console.log(this.command)
-
-    await this.scaffold()
   }
 
   private databases = [

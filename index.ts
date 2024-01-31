@@ -73,8 +73,6 @@ export async function runTasks() {
     process.exit(1)
   }
 
-  console.log(PlatformClass)
-
   const packageManager = await askPackageManager(
     getPackageManager(process.cwd()),
     PlatformClass.default.supportedPackageManagers
