@@ -229,16 +229,16 @@ export async function copyTemplates(projectPath: string) {
     fs.unlinkSync(`${projectPath}/.husky/pre-commit`)
   }
 
-  const commitMessage = fs.readFileSync(join(__dirname, `../../templates/commit-msg.txt`), 'utf-8')
+  const commitMessage = fs.readFileSync(join(__dirname, `../templates/commit-msg.txt`), 'utf-8')
 
   fs.writeFileSync(`${projectPath}/.husky/commit-msg`, commitMessage, 'utf-8')
 
-  const validate = fs.readFileSync(join(__dirname, `../../templates/validate.txt`), 'utf-8')
+  const validate = fs.readFileSync(join(__dirname, `../templates/validate.txt`), 'utf-8')
 
   fs.writeFileSync(`${projectPath}/validate.js`, validate, 'utf-8')
 
   const changeLogConfig = fs.readFileSync(
-    join(__dirname, `../../templates/changelog.config.txt`),
+    join(__dirname, `../templates/changelog.config.txt`),
     'utf-8'
   )
 
