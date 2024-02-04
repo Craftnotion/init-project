@@ -9,28 +9,8 @@ import {
   getPackageManager,
   isDirectoryNotEmpty,
   handlePackageManager,
-  updatePkg,
-  copyTemplates,
-  isGitCzInstalled,
 } from './functions'
-
-async function initializeProject(projectPath: string, projectName: string) {
-  console.log(chalk.green(`\nInitializing GIT and adding necessary packages to ${projectName}...`))
-  await updatePkg(projectPath, 'devDependencies', { chalk: '^4.1.2' })
-  execSync('git init', { stdio: 'inherit', cwd: projectPath })
-  execSync('npx husky-init', { stdio: 'inherit', cwd: projectPath })
-  console.log(
-    chalk.green(`\nHusky and commit message template added successfully to ${projectName}!`)
-  )
-}
-
-async function installGitCz(projectPath: string) {
-  if (!isGitCzInstalled()) {
-    console.log(chalk.yellow('\nGit-cz is not installed. Installing globally...'))
-    await updatePkg(projectPath, 'devDependencies', { 'git-cz': '' })
-    console.log(chalk.green('\nGit-cz installed successfully!'))
-  }
-}
+import { setupGit } from './functions/git'
 
 async function runPackageManager(projectPath: string, packageManager: string) {
   let command = handlePackageManager(projectPath, packageManager)
@@ -41,7 +21,7 @@ async function runPackageManager(projectPath: string, packageManager: string) {
   try {
     execSync(command, { stdio: 'inherit', cwd: projectPath })
   } catch (err) {
-    console.log(chalk.red.bold('Unable to run the command. Please try again.'))
+    console.log(chalk.red.bold('\nUnable to run the command. Please try again.'))
     process.exit(1)
   }
 }
@@ -82,19 +62,14 @@ export async function runTasks() {
   try {
     await platformInstance.handle()
   } catch (err) {
-    console.log(chalk.red.bold("Couldn't initialize the project. Please try again."))
+    console.log(chalk.red.bold("\nCouldn't initialize the project. Please try again."))
     process.exit(1)
   }
 
-  await initializeProject(projectPath, projectName).catch(() => {
-    console.log(chalk.red.bold("Couldn't initialize the project. Please try again."))
+  await setupGit(projectName, projectPath).catch(() => {
+    console.log(chalk.red.bold("\nCouldn't initialize GIT. Please run git init"))
     process.exit(1)
   })
-
-  await installGitCz(projectPath)
-
-  console.log(chalk.green(`\nCopying the templates \n`))
-  await copyTemplates(projectPath)
 
   await runPackageManager(projectPath, packageManager)
 }

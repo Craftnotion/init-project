@@ -1,4 +1,4 @@
-import fs, { readFileSync, writeFileSync } from 'fs'
+import fs, { writeFileSync, readFileSync } from 'fs'
 import inquirer from 'inquirer'
 import path, { resolve, join } from 'path'
 import { pathExistsSync } from 'fs-extra'
@@ -166,6 +166,28 @@ export function handlePackageManager(projectPath: string, packageManager: string
   }
 }
 
+export async function getLatestVersion(
+  packageManager: PackageManager,
+  packageName: string
+): Promise<string> {
+  try {
+    const command = `${packageManager} info ${packageName} version --json`
+    const result = execSync(command, { encoding: 'utf-8' })
+    let version = JSON.parse(result.trim())
+    return version
+  } catch (error: any) {
+    console.error(
+      chalk.red(
+        `Error fetching latest version for ${packageName}. Installing latest version available.`
+      )
+    )
+    execSync(`${packageManager} ${packageManager === 'npm' ? 'i' : 'add'} ${packageName}`, {
+      encoding: 'utf-8',
+    })
+    return ''
+  }
+}
+
 export async function updatePkg(
   projectPath: string,
   type: 'devDependencies' | 'dependencies' | 'scripts',
@@ -198,58 +220,4 @@ export async function updatePkg(
   const indent = regex.exec(str)?.[0]
 
   writeFileSync(`${projectPath}/package.json`, `${JSON.stringify(pkg, null, indent)}\n`)
-}
-
-async function getLatestVersion(
-  packageManager: PackageManager,
-  packageName: string
-): Promise<string> {
-  try {
-    const command = `${packageManager} info ${packageName} version --json`
-    const result = execSync(command, { encoding: 'utf-8' })
-    let version = JSON.parse(result.trim())
-    return version
-  } catch (error: any) {
-    console.error(
-      chalk.red(
-        `Error fetching latest version for ${packageName}. Installing latest version available.`
-      )
-    )
-    execSync(`${packageManager} ${packageManager === 'npm' ? 'i' : 'add'} ${packageName}`, {
-      encoding: 'utf-8',
-    })
-    return ''
-  }
-}
-
-export async function copyTemplates(projectPath: string) {
-  //Remove default pre-commit
-
-  if (fs.existsSync(`${projectPath}/.husky/pre-commit`)) {
-    fs.unlinkSync(`${projectPath}/.husky/pre-commit`)
-  }
-
-  const commitMessage = fs.readFileSync(join(__dirname, `../templates/commit-msg.txt`), 'utf-8')
-
-  fs.writeFileSync(`${projectPath}/.husky/commit-msg`, commitMessage, 'utf-8')
-
-  const validate = fs.readFileSync(join(__dirname, `../templates/validate.txt`), 'utf-8')
-
-  fs.writeFileSync(`${projectPath}/validate.js`, validate, 'utf-8')
-
-  const changeLogConfig = fs.readFileSync(
-    join(__dirname, `../templates/changelog.config.txt`),
-    'utf-8'
-  )
-
-  fs.writeFileSync(`${projectPath}/changelog.config.js`, changeLogConfig, 'utf-8')
-}
-
-export function isGitCzInstalled(): boolean {
-  try {
-    execSync('git-cz --version', { stdio: 'ignore' })
-    return true
-  } catch (error) {
-    return false
-  }
 }
