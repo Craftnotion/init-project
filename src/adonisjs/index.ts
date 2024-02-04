@@ -11,7 +11,7 @@ export default class Adonisjs extends Base {
   constructor(data: InitialInput) {
     const { packageManager, projectName } = data
 
-    super(packageManager)
+    super('npx')
 
     this.packageManager = packageManager
     this.projectName = projectName
@@ -46,7 +46,7 @@ export default class Adonisjs extends Base {
   private async handleVersion5(boilerplate: string) {
     this.node = '14'
 
-    this.command = `npx create-adonis-ts-app ${this.projectName}`
+    this.command += ` create-adonis-ts-app ${this.projectName}`
 
     this.updateCommand('alias', { client: this.packageManager, name: this.projectName })
 
@@ -79,13 +79,13 @@ export default class Adonisjs extends Base {
     ])
 
     this.updateCommand('alias', { encore, prettier })
-    
+
     this.updateCommand('alias', ['debug'])
   }
   private async handleVersion6(boilerplate: string) {
     this.node = '20.7'
 
-    this.command = `npx create-adonisjs ${this.projectName}`
+    this.command += ` create-adonisjs ${this.projectName}`
 
     this.updateCommand('alias', { kit: boilerplate, pkg: this.packageManager })
 
@@ -113,19 +113,19 @@ export default class Adonisjs extends Base {
   private databases = [
     {
       name: 'SQLite',
-      alias: 'sqlite',
+      value: 'sqlite',
     },
     {
       name: 'MySQL / MariaDB',
-      alias: 'mysql',
+      value: 'mysql',
     },
     {
       name: 'PostgreSQL',
-      alias: 'postgres',
+      value: 'postgres',
     },
     {
       name: 'Microsoft SQL Server',
-      alias: 'mssql',
+      value: 'mssql',
     },
     {
       name: 'Skip',
@@ -137,12 +137,12 @@ export default class Adonisjs extends Base {
   private authGuards = [
     {
       name: 'Session',
-      alias: 'session',
+      value: 'session',
       hint: 'Authenticate users using cookies and session.',
     },
     {
       name: 'Access Token',
-      alias: 'access_tokens',
+      value: 'access_tokens',
       hint: 'Authenticate clients using tokens.',
     },
     {
