@@ -79,6 +79,7 @@ export default class Adonisjs extends Base {
     ])
 
     this.updateCommand('alias', { encore, prettier })
+    
     this.updateCommand('alias', ['debug'])
   }
   private async handleVersion6(boilerplate: string) {
