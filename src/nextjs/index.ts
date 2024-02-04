@@ -11,17 +11,7 @@ export default class Nextjs extends Base {
   constructor(data: InitialInput) {
     let { packageManager = 'npm', projectName } = data
 
-    super(packageManager)
-    this.command += this.baseCommand(packageManager, projectName)
-  }
-
-  private baseCommand(packageManager: PackageManager, projectName: string): string {
-    const commandMap: { [key in PackageManager]: string } = {
-      npm: ` init create-next-app ${projectName}`,
-      yarn: ` create next-app ${projectName}`,
-      pnpm: ` create next-app ${projectName}`,
-    }
-    return commandMap[packageManager]
+    super(`npx create-next-app@latest ${projectName} --use-${packageManager}`)
   }
 
   public async handle() {

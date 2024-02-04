@@ -17,19 +17,6 @@ export default class Adonisjs extends Base {
     this.projectName = projectName
   }
 
-  private baseCommand(
-    packageManager: PackageManager,
-    projectName: string,
-    version: string
-  ): string {
-    const commandMap: Record<PackageManager, string> = {
-      npm: ` init ${version === 'v5' ? 'adonis-ts-app' : 'adonisjs'} ${projectName} --`,
-      yarn: ` create ${version === 'v5' ? 'adonis-ts-app' : 'adonisjs'} ${projectName} --`,
-      pnpm: ` create ${version === 'v5' ? 'adonis-ts-app' : 'adonisjs'} ${projectName} --`,
-    }
-    return commandMap[packageManager]
-  }
-
   public async handle() {
     const { version } = await inquirer.prompt([
       {
@@ -49,8 +36,6 @@ export default class Adonisjs extends Base {
       },
     ])
 
-    this.command += this.baseCommand(this.packageManager, this.projectName, version)
-
     version === 'v5'
       ? await this.handleVersion5(boilerplate)
       : await this.handleVersion6(boilerplate)
@@ -59,8 +44,11 @@ export default class Adonisjs extends Base {
   }
 
   private async handleVersion5(boilerplate: string) {
-    this.node = '20.6'
-    this.updateCommand('alias', { name: this.projectName })
+    this.node = '14'
+
+    this.command = `npx create-adonis-ts-app ${this.projectName}`
+
+    this.updateCommand('alias', { client: this.packageManager, name: this.projectName })
 
     const { eslint } = await inquirer.prompt([
       {
@@ -94,6 +82,10 @@ export default class Adonisjs extends Base {
     this.updateCommand('alias', ['debug'])
   }
   private async handleVersion6(boilerplate: string) {
+    this.node = '20.7'
+
+    this.command = `npx create-adonisjs ${this.projectName}`
+
     this.updateCommand('alias', { kit: boilerplate, pkg: this.packageManager })
 
     this.updateCommand('alias', 'install')
