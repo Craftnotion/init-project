@@ -79,7 +79,8 @@
     "build/index.js",
     "LICENSE.md",
     "package.json",
-    "README.md"
+    "README.md",
+    ".npmrc"
   ],
   "eslintConfig": {
     "extends": [
