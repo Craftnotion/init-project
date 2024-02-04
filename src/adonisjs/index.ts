@@ -45,7 +45,7 @@ export default class Adonisjs extends Base {
 
   private async handleVersion5(boilerplate: string) {
     this.node = '14'
-    
+
     this.command += ` create-adonis-ts-app ${this.projectName}`
 
     this.updateCommand('alias', { client: this.packageManager, name: this.projectName })
@@ -82,7 +82,7 @@ export default class Adonisjs extends Base {
   }
   private async handleVersion6(boilerplate: string) {
     this.node = '20.7'
-    
+
     this.command += ` create-adonisjs ${this.projectName}`
 
     this.updateCommand('alias', { kit: boilerplate, pkg: this.packageManager })
