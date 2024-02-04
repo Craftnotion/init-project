@@ -36,10 +36,6 @@ export class Base {
   }
 
   protected scaffold() {
-    let isWin = process.platform === 'win32'
-
-    if (isWin)
-      this.command += ' Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned'
     execSync(this.command, { stdio: 'inherit' })
   }
 }
