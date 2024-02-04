@@ -20,6 +20,9 @@
     "angular",
     "craftnotion"
   ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
