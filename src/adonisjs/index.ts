@@ -11,7 +11,7 @@ export default class Adonisjs extends Base {
   constructor(data: InitialInput) {
     const { packageManager, projectName } = data
 
-    super(packageManager)
+    super('npx')
 
     this.packageManager = packageManager
     this.projectName = projectName
@@ -46,7 +46,7 @@ export default class Adonisjs extends Base {
   private async handleVersion5(boilerplate: string) {
     this.node = '14'
 
-    this.command = `npx create-adonis-ts-app ${this.projectName}`
+    this.command = `create-adonis-ts-app ${this.projectName}`
 
     this.updateCommand('alias', { client: this.packageManager, name: this.projectName })
 
@@ -79,13 +79,11 @@ export default class Adonisjs extends Base {
     ])
 
     this.updateCommand('alias', { encore, prettier })
-    
-    this.updateCommand('alias', ['debug'])
   }
   private async handleVersion6(boilerplate: string) {
     this.node = '20.7'
 
-    this.command = `npx create-adonisjs ${this.projectName}`
+    this.command = `create-adonisjs ${this.projectName}`
 
     this.updateCommand('alias', { kit: boilerplate, pkg: this.packageManager })
 
