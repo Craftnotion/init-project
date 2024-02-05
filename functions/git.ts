@@ -58,16 +58,16 @@ async function standardiseCommits(projectName: string, projectPath: string) {
   if (!isGitCzInstalled()) {
     console.log(chalk.yellow('\nGit-cz is not installed. Installing globally...'))
     await updatePkg(projectPath, 'devDependencies', { 'git-cz': '' })
-    await updatePkg(projectPath, 'devDependencies', { chalk: '^4.1.2' })
-    console.log(chalk.green('\nGit-cz installed successfully!'))
-    execSync('npx husky-init', { stdio: 'inherit', cwd: projectPath })
-    console.log(
-      chalk.green(`\nHusky and commit message template added successfully to ${projectName}!`)
-    )
-
-    console.log(chalk.green(`\nCopying the templates`))
-    await copyTemplates(projectPath)
   }
+  await updatePkg(projectPath, 'devDependencies', { chalk: '^4.1.2' })
+  console.log(chalk.green('\nGit-cz installed successfully!'))
+  execSync('npx husky-init', { stdio: 'inherit', cwd: projectPath })
+  console.log(
+    chalk.green(`\nHusky and commit message template added successfully to ${projectName}!`)
+  )
+
+  console.log(chalk.green(`\nCopying the templates`))
+  await copyTemplates(projectPath)
 }
 
 export async function copyTemplates(projectPath: string) {
