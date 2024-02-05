@@ -1,11 +1,29 @@
 import fs, { writeFileSync, readFileSync } from 'fs'
 import inquirer from 'inquirer'
-import path, { resolve, join } from 'path'
+import path, { resolve } from 'path'
 import { pathExistsSync } from 'fs-extra'
 import { execSync } from 'child_process'
 
 import { validateNpmName } from './validate-pkg'
 import chalk from 'chalk'
+
+/**
+ * Validate project name
+ * @param {string} name - The name of the project.
+ */
+
+function validateProjectName(name: string): string | boolean {
+  if (name.trim() === '') {
+    return 'Project name cannot be empty'
+  }
+  if (!validateNpmName(name)) {
+    return 'Package names can only contain lowercase letters, numbers, hyphens (-), and underscores (_). They must start and end with a lowercase letter or a number name should only contain lowercase alphabets'
+  }
+  if (isDirectoryNotEmpty(path.join(process.cwd(), name))) {
+    return 'The project directory is not empty. Please make sure that the project directoy is empty and press enter'
+  }
+  return true
+}
 
 /**
  * Function to prompt the user for the project name.
@@ -16,14 +34,7 @@ export async function askProjectName(): Promise<string> {
     type: 'input',
     name: 'projectName',
     message: 'Enter the name of your project:',
-    validate: (input) =>
-      input.trim() !== ''
-        ? validateNpmName(input)
-          ? isDirectoryNotEmpty(path.join(process.cwd(), input))
-            ? 'The project directory is not empty. Please make sure that the project directoy is empty'
-            : true
-          : 'Package names can only contain lowercase letters, numbers, hyphens (-), and underscores (_). They must start and end with a lowercase letter or a number name should only contain lowercase alphabets'
-        : 'Project name cannot be empty',
+    validate: validateProjectName,
   })
   return projectName as string
 }
