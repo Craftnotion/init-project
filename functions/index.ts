@@ -12,6 +12,8 @@ import chalk from 'chalk'
  * @returns {string} The project name.
  */
 export async function askProjectName(): Promise<string> {
+
+
   const { projectName } = await inquirer.prompt({
     type: 'input',
     name: 'projectName',
@@ -19,7 +21,7 @@ export async function askProjectName(): Promise<string> {
     validate: (input) =>
       input.trim() !== ''
         ? validateNpmName(input)
-          ? true
+          ? isDirectoryNotEmpty(path.join(process.cwd(), input)) ? "The project directory is not empty. Please make sure that the project directoy is empty" : true
           : 'Package names can only contain lowercase letters, numbers, hyphens (-), and underscores (_). They must start and end with a lowercase letter or a number name should only contain lowercase alphabets'
         : 'Project name cannot be empty',
   })

@@ -42,7 +42,6 @@ export async function runTasks() {
         '\nError: The project folder is not empty. Please choose a different name or use an empty folder.'
       )
     )
-    process.exit(1)
   }
 
   const platform = await askFramework()
@@ -66,8 +65,9 @@ export async function runTasks() {
     process.exit(1)
   }
 
-  await setupGit(projectName, projectPath).catch(() => {
+  await setupGit(projectName, projectPath).catch((err) => {
     console.log(chalk.red.bold("\nCouldn't initialize GIT. Please run git init"))
+    console.log(err)
     process.exit(1)
   })
 
