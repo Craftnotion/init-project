@@ -3,9 +3,19 @@ import inquirer from 'inquirer'
 import path, { resolve } from 'path'
 import { pathExistsSync } from 'fs-extra'
 import { execSync } from 'child_process'
+var validate = require('validate-npm-package-name')
 
-import { validateNpmName } from './validate-pkg'
 import chalk from 'chalk'
+
+export function validateNpmName(name: string): boolean {
+  const nameValidation = validate(name)
+
+  if (nameValidation.validForNewPackages) {
+    return true
+  }
+
+  return false
+}
 
 /**
  * Validate project name
