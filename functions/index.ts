@@ -40,12 +40,17 @@ function validateProjectName(name: string): string | boolean {
  * @returns {string} The project name.
  */
 export async function askProjectName(): Promise<string> {
-  const { projectName } = await inquirer.prompt({
-    type: 'input',
-    name: 'projectName',
-    message: 'Enter the name of your project:',
-    validate: validateProjectName,
-  })
+  const { projectName } = await inquirer
+    .prompt({
+      type: 'input',
+      name: 'projectName',
+      message: 'Enter the name of your project:',
+      validate: validateProjectName,
+    })
+    .catch(() => {
+      console.log(chalk.bold('\nProcess cancelled.'))
+      process.exit(1)
+    })
   return projectName as string
 }
 
@@ -72,13 +77,18 @@ export async function askPackageManager(
   value: PackageManager,
   available: Array<PackageManager>
 ): Promise<PackageManager> {
-  const { packageManager } = await inquirer.prompt({
-    type: 'list',
-    name: 'packageManager',
-    message: 'Choose a package manager:',
-    choices: available.length ? available : ['npm', 'yarn', 'pnpm'],
-    default: available.includes(value) ? value : available[0],
-  })
+  const { packageManager } = await inquirer
+    .prompt({
+      type: 'list',
+      name: 'packageManager',
+      message: 'Choose a package manager:',
+      choices: available.length ? available : ['npm', 'yarn', 'pnpm'],
+      default: available.includes(value) ? value : available[0],
+    })
+    .catch(() => {
+      console.log(chalk.bold('\nProcess cancelled.'))
+      process.exit(1)
+    })
   return packageManager
 }
 
@@ -87,19 +97,24 @@ export async function askPackageManager(
  * @returns {string} The framework that the user chose.
  */
 export async function askFramework(): Promise<Framework> {
-  const { platform } = await inquirer.prompt({
-    type: 'list',
-    name: 'platform',
-    message: 'Select the platform to create:',
-    choices: [
-      'Adonisjs',
-      'Nextjs',
-      'Strapi',
-      { value: 'react-native', name: 'React Native' },
-      'Angular',
-      'ExpressJs',
-    ],
-  })
+  const { platform } = await inquirer
+    .prompt({
+      type: 'list',
+      name: 'platform',
+      message: 'Select the platform to create:',
+      choices: [
+        'Adonisjs',
+        'Nextjs',
+        'Strapi',
+        { value: 'react-native', name: 'React Native' },
+        'Angular',
+        'ExpressJs',
+      ],
+    })
+    .catch(() => {
+      console.log(chalk.bold('\nProcess cancelled.'))
+      process.exit(1)
+    })
   return platform.toLowerCase() as Framework
 }
 
@@ -197,7 +212,7 @@ export async function getLatestVersion(
     const command = `${packageManager} info ${packageName} version --json`
     const result = execSync(command, { encoding: 'utf-8' })
     let version = JSON.parse(result.trim())
-    return version
+    return version.data
   } catch (error: any) {
     console.error(
       chalk.red(
@@ -235,7 +250,6 @@ export async function updatePkg(
     } else {
       return false
     }
-
     pkg[type][key] = value
   }
   const regex = /^[ ]+|\t+/m

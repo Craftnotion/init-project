@@ -47,7 +47,7 @@ async function configureGit() {
 
 function isGitCzInstalled(): boolean {
   try {
-    execSync('git-cz --version', { stdio: 'ignore' })
+    execSync('git-cz --version')
     return true
   } catch (error) {
     return false
@@ -56,11 +56,11 @@ function isGitCzInstalled(): boolean {
 
 async function standardiseCommits(projectName: string, projectPath: string) {
   if (!isGitCzInstalled()) {
-    console.log(chalk.yellow('\nGit-cz is not installed. Installing globally...'))
-    await updatePkg(projectPath, 'devDependencies', { 'git-cz': '' })
+    console.log(chalk.yellow('\ncommitizen is not installed. Installing globally...'))
+    await updatePkg(projectPath, 'devDependencies', { commitizen: '' })
   }
   await updatePkg(projectPath, 'devDependencies', { chalk: '^4.1.2' })
-  console.log(chalk.green('\nGit-cz installed successfully!'))
+  console.log(chalk.green('\ncommitizen installed successfully!'))
   execSync('npx husky-init', { stdio: 'inherit', cwd: projectPath })
   console.log(
     chalk.green(`\nHusky and commit message template added successfully to ${projectName}!`)
