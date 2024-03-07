@@ -1,28 +1,56 @@
-import fs, { readFileSync, writeFileSync } from 'fs'
+import fs, { writeFileSync, readFileSync } from 'fs'
 import inquirer from 'inquirer'
-import path, { resolve, join } from 'path'
+import path, { resolve } from 'path'
 import { pathExistsSync } from 'fs-extra'
 import { execSync } from 'child_process'
+var validate = require('validate-npm-package-name')
 
-import { validateNpmName } from './validate-pkg'
 import chalk from 'chalk'
+
+export function validateNpmName(name: string): boolean {
+  const nameValidation = validate(name)
+
+  if (nameValidation.validForNewPackages) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * Validate project name
+ * @param {string} name - The name of the project.
+ */
+
+function validateProjectName(name: string): string | boolean {
+  if (name.trim() === '') {
+    return 'Project name cannot be empty'
+  }
+  if (!validateNpmName(name)) {
+    return 'Package names can only contain lowercase letters, numbers, hyphens (-), and underscores (_). They must start and end with a lowercase letter or a number name should only contain lowercase alphabets'
+  }
+  if (isDirectoryNotEmpty(path.join(process.cwd(), name))) {
+    return 'The project directory is not empty. Please make sure that the project directoy is empty and press enter'
+  }
+  return true
+}
 
 /**
  * Function to prompt the user for the project name.
  * @returns {string} The project name.
  */
 export async function askProjectName(): Promise<string> {
-  const { projectName } = await inquirer.prompt({
-    type: 'input',
-    name: 'projectName',
-    message: 'Enter the name of your project:',
-    validate: (input) =>
-      input.trim() !== ''
-        ? validateNpmName(input)
-          ? true
-          : 'Package names can only contain lowercase letters, numbers, hyphens (-), and underscores (_). They must start and end with a lowercase letter or a number name should only contain lowercase alphabets'
-        : 'Project name cannot be empty',
-  })
+  const { projectName } = await inquirer
+    .prompt({
+      type: 'input',
+      name: 'projectName',
+      message: 'Enter the name of your project:',
+      validate: validateProjectName,
+    })
+    .catch(() => {
+      console.log(chalk.bold('\nProcess cancelled.'))
+      process.exit(1)
+    })
   return projectName as string
 }
 
@@ -49,13 +77,18 @@ export async function askPackageManager(
   value: PackageManager,
   available: Array<PackageManager>
 ): Promise<PackageManager> {
-  const { packageManager } = await inquirer.prompt({
-    type: 'list',
-    name: 'packageManager',
-    message: 'Choose a package manager:',
-    choices: available.length ? available : ['npm', 'yarn', 'pnpm'],
-    default: available.includes(value) ? value : available[0],
-  })
+  const { packageManager } = await inquirer
+    .prompt({
+      type: 'list',
+      name: 'packageManager',
+      message: 'Choose a package manager:',
+      choices: available.length ? available : ['npm', 'yarn', 'pnpm'],
+      default: available.includes(value) ? value : available[0],
+    })
+    .catch(() => {
+      console.log(chalk.bold('\nProcess cancelled.'))
+      process.exit(1)
+    })
   return packageManager
 }
 
@@ -64,12 +97,24 @@ export async function askPackageManager(
  * @returns {string} The framework that the user chose.
  */
 export async function askFramework(): Promise<Framework> {
-  const { platform } = await inquirer.prompt({
-    type: 'list',
-    name: 'platform',
-    message: 'Select the platform to create:',
-    choices: ['AdonisJS', 'Nextjs', 'Strapi', 'React Native'],
-  })
+  const { platform } = await inquirer
+    .prompt({
+      type: 'list',
+      name: 'platform',
+      message: 'Select the platform to create:',
+      choices: [
+        'Adonisjs',
+        'Nextjs',
+        'Strapi',
+        { value: 'react-native', name: 'React Native' },
+        'Angular',
+        'ExpressJs',
+      ],
+    })
+    .catch(() => {
+      console.log(chalk.bold('\nProcess cancelled.'))
+      process.exit(1)
+    })
   return platform.toLowerCase() as Framework
 }
 
@@ -159,6 +204,28 @@ export function handlePackageManager(projectPath: string, packageManager: string
   }
 }
 
+export async function getLatestVersion(
+  packageManager: PackageManager,
+  packageName: string
+): Promise<string> {
+  try {
+    const command = `${packageManager} info ${packageName} version --json`
+    const result = execSync(command, { encoding: 'utf-8' })
+    let version = JSON.parse(result.trim())
+    return version.data
+  } catch (error: any) {
+    console.error(
+      chalk.red(
+        `Error fetching latest version for ${packageName}. Installing latest version available.`
+      )
+    )
+    execSync(`${packageManager} ${packageManager === 'npm' ? 'i' : 'add'} ${packageName}`, {
+      encoding: 'utf-8',
+    })
+    return ''
+  }
+}
+
 export async function updatePkg(
   projectPath: string,
   type: 'devDependencies' | 'dependencies' | 'scripts',
@@ -183,7 +250,6 @@ export async function updatePkg(
     } else {
       return false
     }
-
     pkg[type][key] = value
   }
   const regex = /^[ ]+|\t+/m
@@ -191,58 +257,4 @@ export async function updatePkg(
   const indent = regex.exec(str)?.[0]
 
   writeFileSync(`${projectPath}/package.json`, `${JSON.stringify(pkg, null, indent)}\n`)
-}
-
-async function getLatestVersion(
-  packageManager: PackageManager,
-  packageName: string
-): Promise<string> {
-  try {
-    const command = `${packageManager} info ${packageName} version --json`
-    const result = execSync(command, { encoding: 'utf-8' })
-    let version = JSON.parse(result.trim())
-    return version
-  } catch (error: any) {
-    console.error(
-      chalk.red(
-        `Error fetching latest version for ${packageName}. Installing latest version available.`
-      )
-    )
-    execSync(`${packageManager} ${packageManager === 'npm' ? 'i' : 'add'} ${packageName}`, {
-      encoding: 'utf-8',
-    })
-    return ''
-  }
-}
-
-export async function copyTemplates(projectPath: string) {
-  //Remove default pre-commit
-
-  if (fs.existsSync(`${projectPath}/.husky/pre-commit`)) {
-    fs.unlinkSync(`${projectPath}/.husky/pre-commit`)
-  }
-
-  const commitMessage = fs.readFileSync(join(__dirname, `../../templates/commit-msg.txt`), 'utf-8')
-
-  fs.writeFileSync(`${projectPath}/.husky/commit-msg`, commitMessage, 'utf-8')
-
-  const validate = fs.readFileSync(join(__dirname, `../../templates/validate.txt`), 'utf-8')
-
-  fs.writeFileSync(`${projectPath}/validate.js`, validate, 'utf-8')
-
-  const changeLogConfig = fs.readFileSync(
-    join(__dirname, `../../templates/changelog.config.txt`),
-    'utf-8'
-  )
-
-  fs.writeFileSync(`${projectPath}/changelog.config.js`, changeLogConfig, 'utf-8')
-}
-
-export function isGitCzInstalled(): boolean {
-  try {
-    execSync('git-cz --version', { stdio: 'ignore' })
-    return true
-  } catch (error) {
-    return false
-  }
 }

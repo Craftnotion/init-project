@@ -9,16 +9,22 @@ import {
   getPackageManager,
   isDirectoryNotEmpty,
   handlePackageManager,
-  updatePkg,
-  copyTemplates,
-  isGitCzInstalled,
-} from './src/functions'
+} from './functions'
+import { setupGit } from './functions/git'
 
-import runAdonis from './src/adonisjs'
-import runNext from './src/nextjs'
-import runReactNative from './src/react-native'
-import runStrapi from './src/strapi'
-import config from './config'
+async function runPackageManager(projectPath: string, packageManager: string) {
+  let command = handlePackageManager(projectPath, packageManager)
+  if (!command) {
+    console.log(chalk.green(`\nUnable to identify the package manager, Using NPM`))
+    command = 'npm install'
+  }
+  try {
+    execSync(command, { stdio: 'inherit', cwd: projectPath })
+  } catch (err) {
+    console.log(chalk.red.bold('\nUnable to run the command. Please try again.'))
+    process.exit(1)
+  }
+}
 
 /**
  * Running all the tasks to create a new project.
@@ -26,10 +32,7 @@ import config from './config'
 export async function runTasks() {
   console.log(chalk.bold('\nWelcome to Project Initialization Wizard!'))
 
-  const projectName = await askProjectName().catch((err) => {
-    console.log(chalk.red.bold(err))
-    process.exit(1)
-  })
+  const projectName = await askProjectName()
 
   const projectPath = path.join(process.cwd(), projectName)
 
@@ -39,71 +42,32 @@ export async function runTasks() {
         '\nError: The project folder is not empty. Please choose a different name or use an empty folder.'
       )
     )
-    process.exit(1)
   }
 
   const platform = await askFramework()
+  const PlatformClass = await import(`./src/${platform.toLocaleLowerCase()}`).catch(console.log)
 
-  const packageManager = await askPackageManager(
-    getPackageManager(process.cwd()),
-    config[platform]['package-manager']
-  )
-
-  try {
-    switch (platform) {
-      case 'adonisjs':
-        await runAdonis({ projectName, packageManager })
-        break
-      case 'nextjs':
-        await runNext({ projectName, packageManager })
-        break
-      case 'react native':
-        await runReactNative({ projectName, packageManager })
-        break
-      case 'strapi':
-        await runStrapi({ projectName, packageManager })
-        break
-      default:
-        console.log(chalk.red.bold('Error: Invalid platform.'))
-        process.exit(1)
-    }
-  } catch (err) {
-    console.log(chalk.red.bold('\nOperation failed. Please try again'))
+  if (!PlatformClass) {
+    console.log(chalk.red.bold(`\nError: ${platform} is not a valid platform.`))
     process.exit(1)
   }
 
-  console.log(
-    chalk.green(`\nInitializing GIT and adding necessary packages to ${projectName}...\n`)
+  const packageManager = await askPackageManager(
+    getPackageManager(process.cwd()),
+    PlatformClass.default.supportedPackageManagers
   )
+  const platformInstance = new PlatformClass.default({ projectName, packageManager })
 
-  await updatePkg(projectPath, 'devDependencies', { chalk: '^4.1.2' })
+  await platformInstance.handle().catch(() => {
+    console.log(chalk.red.bold("\nCouldn't Scaffold the project. Please try again."))
+    process.exit(1)
+  })
 
-  execSync('git init', { stdio: 'inherit', cwd: projectPath })
 
-  execSync('npx husky-init', { stdio: 'inherit', cwd: projectPath })
+  await setupGit(projectName, projectPath).catch((err) => {
+    console.log(chalk.red.bold("\nCouldn't initialize GIT. Please run git init"))
+    process.exit(1)
+  })
 
-  console.log(
-    chalk.green(`\nHusky and commit message template added successfully to ${projectName}!\n`)
-  )
-
-  if (!isGitCzInstalled()) {
-    console.log(chalk.yellow('\nGit-cz is not installed. Installing globally...\n'))
-
-    await updatePkg(projectPath, 'devDependencies', { 'git-cz': '' })
-
-    console.log(chalk.green('\nGit-cz installed successfully!\n'))
-  }
-
-  console.log(chalk.green(`\nCopying the templates`))
-
-  await copyTemplates(projectPath)
-
-  let command = handlePackageManager(projectPath, packageManager)
-
-  if (!command) {
-    console.log(chalk.green(`\nUnable to identify the package manager, Using NPM`))
-
-    command = 'npm install'
-  }
-  execSync(command, { stdio: 'inherit', cwd: projectPath })
+  await runPackageManager(projectPath, packageManager)
 }

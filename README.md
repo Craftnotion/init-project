@@ -13,6 +13,8 @@
    - AdonisJS
    - Strapi
    - React Native
+   - ExpressJs
+   - Angular
 
 2. **Options:**
    - TypeScript support for applicable projects.
@@ -34,6 +36,7 @@ Run the following command to initiate a project setup:
 npx @craftnotion/init-project
 ```
 
+Crafted with ❤️ by [Craftnotion](https://craftnotion.com)
 
 [npm-image]: https://img.shields.io/npm/v/@craftnotion/init-project.svg?style=for-the-badge&logo=npm
 [npm-url]: https://npmjs.org/package/@craftnotion/init-project "npm"
