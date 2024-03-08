@@ -1,30 +1,56 @@
 import fs, { writeFileSync, readFileSync } from 'fs'
 import inquirer from 'inquirer'
-import path, { resolve, join } from 'path'
+import path, { resolve } from 'path'
 import { pathExistsSync } from 'fs-extra'
 import { execSync } from 'child_process'
+var validate = require('validate-npm-package-name')
 
-import { validateNpmName } from './validate-pkg'
 import chalk from 'chalk'
+
+export function validateNpmName(name: string): boolean {
+  const nameValidation = validate(name)
+
+  if (nameValidation.validForNewPackages) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * Validate project name
+ * @param {string} name - The name of the project.
+ */
+
+function validateProjectName(name: string): string | boolean {
+  if (name.trim() === '') {
+    return 'Project name cannot be empty'
+  }
+  if (!validateNpmName(name)) {
+    return 'Package names can only contain lowercase letters, numbers, hyphens (-), and underscores (_). They must start and end with a lowercase letter or a number name should only contain lowercase alphabets'
+  }
+  if (isDirectoryNotEmpty(path.join(process.cwd(), name))) {
+    return 'The project directory is not empty. Please make sure that the project directoy is empty and press enter'
+  }
+  return true
+}
 
 /**
  * Function to prompt the user for the project name.
  * @returns {string} The project name.
  */
 export async function askProjectName(): Promise<string> {
-  const { projectName } = await inquirer.prompt({
-    type: 'input',
-    name: 'projectName',
-    message: 'Enter the name of your project:',
-    validate: (input) =>
-      input.trim() !== ''
-        ? validateNpmName(input)
-          ? isDirectoryNotEmpty(path.join(process.cwd(), input))
-            ? 'The project directory is not empty. Please make sure that the project directoy is empty'
-            : true
-          : 'Package names can only contain lowercase letters, numbers, hyphens (-), and underscores (_). They must start and end with a lowercase letter or a number name should only contain lowercase alphabets'
-        : 'Project name cannot be empty',
-  })
+  const { projectName } = await inquirer
+    .prompt({
+      type: 'input',
+      name: 'projectName',
+      message: 'Enter the name of your project:',
+      validate: validateProjectName,
+    })
+    .catch(() => {
+      console.log(chalk.bold('\nProcess cancelled.'))
+      process.exit(1)
+    })
   return projectName as string
 }
 
@@ -51,13 +77,18 @@ export async function askPackageManager(
   value: PackageManager,
   available: Array<PackageManager>
 ): Promise<PackageManager> {
-  const { packageManager } = await inquirer.prompt({
-    type: 'list',
-    name: 'packageManager',
-    message: 'Choose a package manager:',
-    choices: available.length ? available : ['npm', 'yarn', 'pnpm'],
-    default: available.includes(value) ? value : available[0],
-  })
+  const { packageManager } = await inquirer
+    .prompt({
+      type: 'list',
+      name: 'packageManager',
+      message: 'Choose a package manager:',
+      choices: available.length ? available : ['npm', 'yarn', 'pnpm'],
+      default: available.includes(value) ? value : available[0],
+    })
+    .catch(() => {
+      console.log(chalk.bold('\nProcess cancelled.'))
+      process.exit(1)
+    })
   return packageManager
 }
 
@@ -66,19 +97,25 @@ export async function askPackageManager(
  * @returns {string} The framework that the user chose.
  */
 export async function askFramework(): Promise<Framework> {
-  const { platform } = await inquirer.prompt({
-    type: 'list',
-    name: 'platform',
-    message: 'Select the platform to create:',
-    choices: [
-      'Adonisjs',
-      'Nextjs',
-      'Strapi',
-      { value: 'react-native', name: 'React Native' },
-      'Angular',
-      'ExpressJs',
-    ],
-  })
+  const { platform } = await inquirer
+    .prompt({
+      type: 'list',
+      name: 'platform',
+      message: 'Select the platform to create:',
+      choices: [
+        'Adonisjs',
+        'Nextjs',
+        'Strapi',
+        { value: 'react-native', name: 'React Native' },
+        'Angular',
+        'ExpressJs',
+        'NestJs',
+      ],
+    })
+    .catch(() => {
+      console.log(chalk.bold('\nProcess cancelled.'))
+      process.exit(1)
+    })
   return platform.toLowerCase() as Framework
 }
 
@@ -176,7 +213,7 @@ export async function getLatestVersion(
     const command = `${packageManager} info ${packageName} version --json`
     const result = execSync(command, { encoding: 'utf-8' })
     let version = JSON.parse(result.trim())
-    return version
+    return version.data
   } catch (error: any) {
     console.error(
       chalk.red(
@@ -214,7 +251,6 @@ export async function updatePkg(
     } else {
       return false
     }
-
     pkg[type][key] = value
   }
   const regex = /^[ ]+|\t+/m

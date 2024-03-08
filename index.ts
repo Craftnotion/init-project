@@ -58,16 +58,13 @@ export async function runTasks() {
   )
   const platformInstance = new PlatformClass.default({ projectName, packageManager })
 
-  try {
-    await platformInstance.handle()
-  } catch (err) {
-    console.log(chalk.red.bold("\nCouldn't initialize the project. Please try again."))
+  await platformInstance.handle().catch(() => {
+    console.log(chalk.red.bold("\nCouldn't Scaffold the project. Please try again."))
     process.exit(1)
-  }
+  })
 
   await setupGit(projectName, projectPath).catch((err) => {
-    console.log(chalk.red.bold("\nCouldn't initialize GIT. Please run git init"))
-    console.log(err)
+    err && console.log(chalk.red.bold("\nCouldn't initialize GIT. Please run git init"))
     process.exit(1)
   })
 

@@ -5,8 +5,8 @@ export default class Angular extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
 
   constructor(data: InitialInput) {
-    let { projectName } = data
-    super(`npx -p @angular/cli ng new ${projectName}`)
+    let { projectName, packageManager } = data
+    super(`npx -p @angular/cli ng new ${projectName} --package-manager=${packageManager}`)
   }
 
   public async handle() {
@@ -55,6 +55,13 @@ export default class Angular extends Base {
       },
     ])
 
+    let type = projectOptions.type
+
+    delete projectOptions.type
+
+    this.updateCommand('alias', 'skip-git')
+    this.updateCommand('alias', { [type]: true })
+
     this.updateCommand('alias', projectOptions)
 
     const otherOptions = await inquirer.prompt([
@@ -62,6 +69,7 @@ export default class Angular extends Base {
         type: 'confirm',
         name: 'skip-tests',
         message: 'Include unit testing (Karma/Jasmine)?',
+        when: type !== 'minimal',
       },
       {
         type: 'confirm',
