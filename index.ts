@@ -61,6 +61,7 @@ export async function runTasks() {
   try {
     await platformInstance.handle()
   } catch (err) {
+    console.log(err)
     console.log(chalk.red.bold("\nCouldn't initialize the project. Please try again."))
     process.exit(1)
   }

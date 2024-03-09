@@ -1,6 +1,13 @@
 type PackageManager = 'npm' | 'yarn' | 'pnpm'
 
-type Framework = 'adonisjs' | 'nextjs' | 'react-native' | 'strapi' | 'angular' | 'expressjs'
+type Framework =
+  | 'adonisjs'
+  | 'nextjs'
+  | 'react-native'
+  | 'strapi'
+  | 'angular'
+  | 'expressjs'
+  | 'vuejs'
 
 type InitialInput = {
   projectName: string
