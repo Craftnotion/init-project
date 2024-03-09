@@ -8,6 +8,7 @@ type Framework =
   | 'angular'
   | 'expressjs'
   | 'vuejs'
+  | 'nestjs'
 
 type InitialInput = {
   projectName: string
