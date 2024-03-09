@@ -110,6 +110,7 @@ export async function askFramework(): Promise<Framework> {
       'ExpressJs',
       'NestJs',
       'Vuejs',
+      'Nuxtjs',
     ],
   })
   return platform.toLowerCase() as Framework
