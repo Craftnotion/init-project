@@ -255,3 +255,12 @@ export async function updatePkg(
 
   writeFileSync(`${projectPath}/package.json`, `${JSON.stringify(pkg, null, indent)}\n`)
 }
+
+export function isNestCliInstalled() {
+  try {
+    execSync('git --version', { stdio: 'ignore' })
+    return true
+  } catch (error) {
+    return false
+  }
+}
