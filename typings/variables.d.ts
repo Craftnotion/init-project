@@ -9,6 +9,7 @@ type Framework =
   | 'expressjs'
   | 'vuejs'
   | 'nestjs'
+  | 'nuxtjs'
 
 type InitialInput = {
   projectName: string
