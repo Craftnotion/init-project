@@ -7,6 +7,7 @@ type Framework =
   | 'strapi'
   | 'angular'
   | 'expressjs'
+  | 'vuejs'
   | 'nestjs'
 
 type InitialInput = {

@@ -97,25 +97,21 @@ export async function askPackageManager(
  * @returns {string} The framework that the user chose.
  */
 export async function askFramework(): Promise<Framework> {
-  const { platform } = await inquirer
-    .prompt({
-      type: 'list',
-      name: 'platform',
-      message: 'Select the platform to create:',
-      choices: [
-        'Adonisjs',
-        'Nextjs',
-        'Strapi',
-        { value: 'react-native', name: 'React Native' },
-        'Angular',
-        'ExpressJs',
-        'NestJs',
-      ],
-    })
-    .catch(() => {
-      console.log(chalk.bold('\nProcess cancelled.'))
-      process.exit(1)
-    })
+  const { platform } = await inquirer.prompt({
+    type: 'list',
+    name: 'platform',
+    message: 'Select the platform to create:',
+    choices: [
+      'Adonisjs',
+      'Nextjs',
+      'Strapi',
+      { value: 'react-native', name: 'React Native' },
+      'Angular',
+      'ExpressJs',
+      'NestJs',
+      'Vuejs',
+    ],
+  })
   return platform.toLowerCase() as Framework
 }
 
