@@ -1,9 +1,10 @@
 {
   "author": "hsharma1996,craftnotion",
   "type": "commonjs",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "name": "@craftnotion/init-project",
   "description": "A CLI tool to initialize a new project with AdonisJS, NextJS, React Native, Strapi, TypeScript, Husky, Git-CZ and more.",
+  "repository": "git://github.com/Craftnotion/init-project.git",
   "keywords": [
     "initproject",
     "project-initialization",
@@ -18,7 +19,9 @@
     "git-cz",
     "expressjs",
     "angular",
-    "craftnotion"
+    "craftnotion",
+    "nestjs",
+    "vuejs"
   ],
   "engines": {
     "node": ">=14.0.0"
@@ -30,13 +33,15 @@
     "clean": "del-cli build",
     "compile": "npm run lint && npm run clean && tsc && copyfiles \"templates/**/*\" build",
     "build": "npm run compile",
-    "prepublishOnly": "npm run build",
+    "prerelease": "npm run build",
+    "prebuild": "npm run format",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",
     "commit": "git-cz",
     "release": "np --message=\"chore(release): %s\"",
     "version": "npm run build",
-    "sync-labels": "github-label-sync --labels ./node_modules/@adonisjs/mrm-preset/gh-labels.json craftnotion/init-project"
+    "run": "yarn format && yarn build && node build/bin",
+    "sync-labels": "github-label-sync --labels ./node_modules/@adonisjs/mrm-preset/gh-labels.json Craftnotion/init-project"
   },
   "devDependencies": {
     "@adonisjs/mrm-preset": "^5.0.3",
