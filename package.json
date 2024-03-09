@@ -1,7 +1,7 @@
 {
   "author": "hsharma1996,craftnotion",
   "type": "commonjs",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "name": "@craftnotion/init-project",
   "description": "A CLI tool to initialize a new project with AdonisJS, NextJS, React Native, Strapi, TypeScript, Husky, Git-CZ and more.",
   "repository": "git://github.com/Craftnotion/init-project.git",
