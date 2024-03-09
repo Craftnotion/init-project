@@ -15,6 +15,8 @@
    - React Native
    - ExpressJs
    - Angular
+   - NestJs
+   - VueJS
 
 2. **Options:**
    - TypeScript support for applicable projects.

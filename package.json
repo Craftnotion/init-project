@@ -19,7 +19,9 @@
     "git-cz",
     "expressjs",
     "angular",
-    "craftnotion"
+    "craftnotion",
+    "nestjs",
+    "vuejs"
   ],
   "engines": {
     "node": ">=14.0.0"
