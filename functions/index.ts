@@ -109,7 +109,7 @@ export async function askFramework(): Promise<Framework> {
         { value: 'react-native', name: 'React Native' },
         'Angular',
         'ExpressJs',
-        'Nestjs'
+        'NestJs',
       ],
     })
     .catch(() => {
