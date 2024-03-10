@@ -63,8 +63,8 @@ export async function runTasks() {
     process.exit(1)
   })
 
-
   await setupGit(projectName, projectPath).catch((err) => {
+    if (!err) console.log('')
     console.log(chalk.red.bold("\nCouldn't initialize GIT. Please run git init"))
     process.exit(1)
   })

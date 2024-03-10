@@ -109,6 +109,7 @@ export async function askFramework(): Promise<Framework> {
         { value: 'react-native', name: 'React Native' },
         'Angular',
         'ExpressJs',
+        'Nestjs'
       ],
     })
     .catch(() => {
@@ -257,4 +258,30 @@ export async function updatePkg(
   const indent = regex.exec(str)?.[0]
 
   writeFileSync(`${projectPath}/package.json`, `${JSON.stringify(pkg, null, indent)}\n`)
+}
+
+/**
+ * To check nest cli is installed or not
+ */
+export function isNestCliInstalled(packageManager: PackageManager) {
+  try {
+    execSync('nest --version', { stdio: 'ignore' })
+    return true
+  } catch (error) {
+    installNestCli(packageManager)
+  }
+}
+
+function installNestCli(packageManager: PackageManager) {
+  console.log(chalk.yellow(`\nYou do not have Nest Cli. Installing...`))
+
+  execSync(
+    packageManager === 'pnpm'
+      ? 'pnpm add -g @nestjs/cli'
+      : packageManager === 'yarn'
+        ? 'yarn global add @nestjs/cli'
+        : 'npm i -g @nestjs/cli'
+  )
+
+  return true
 }
