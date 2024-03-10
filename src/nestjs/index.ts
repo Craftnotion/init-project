@@ -1,26 +1,21 @@
 import inquirer from 'inquirer'
 import { Base } from '../base'
-import { isNestCliInstalled } from '../../functions'
+import { isNestCliInstalled } from '../../functions/nest'
 
 export default class Nestjs extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
 
+  public packageManager: PackageManager
+
   /**
-   * Base command for adonisjs
+   * Base command for nestjs
    */
   constructor(data: InitialInput) {
     let { packageManager = 'npm', projectName } = data
 
-    !isNestCliInstalled() &&
-      super(
-        packageManager === 'npm'
-          ? 'npm i -g @nestjs/cli'
-          : packageManager === 'yarn'
-            ? 'yarn global add @nestjs/cli'
-            : 'pnpm add -g @nestjs/cli'
-      )
-
     super(`nest new ${projectName} --package-manager=${packageManager}`)
+
+    this.packageManager = packageManager
   }
 
   public async handle() {
@@ -34,6 +29,9 @@ export default class Nestjs extends Base {
     ])
 
     strictMode && this.updateCommand('flag', '-strict')
+
+    //In case of nest js checking for nest cli and installing
+    isNestCliInstalled(this.packageManager)
 
     this.scaffold()
   }
