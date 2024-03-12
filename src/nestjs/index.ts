@@ -1,6 +1,6 @@
 import inquirer from 'inquirer'
 import { Base } from '../base'
-import { isNestCliInstalled } from '../../functions/nest'
+import { isNestCliInstalled } from '../../functions/index'
 
 export default class Nestjs extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']

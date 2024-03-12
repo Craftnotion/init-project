@@ -9,9 +9,9 @@
     "esModuleInterop": true,
     "outDir": "build",
     "strict": true,
-    "target": "ESNext"
+    "target": "ESNext",
   },
   "include": ["./**/*"],
   "exclude": ["./node_modules", "./build"],
-  "skipLibCheck": true
+  "skipLibCheck": true,
 }
