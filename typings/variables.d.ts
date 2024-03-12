@@ -7,7 +7,9 @@ type Framework =
   | 'strapi'
   | 'angular'
   | 'expressjs'
+  | 'vuejs'
   | 'nestjs'
+  | 'nuxtjs'
 
 type InitialInput = {
   projectName: string

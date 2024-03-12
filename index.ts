@@ -57,7 +57,6 @@ export async function runTasks() {
     PlatformClass.default.supportedPackageManagers
   )
   const platformInstance = new PlatformClass.default({ projectName, packageManager })
-
   await platformInstance.handle().catch(() => {
     console.log(chalk.red.bold("\nCouldn't Scaffold the project. Please try again."))
     process.exit(1)
