@@ -269,6 +269,18 @@ export function isNestCliInstalled(packageManager: PackageManager) {
   }
 }
 
+/**
+ * To check sail cli is installed or not
+ */
+export function isSailsCliInstalled(packageManager: PackageManager) {
+  try {
+    execSync('sails --version', { stdio: 'ignore' })
+    return true
+  } catch (error) {
+    installNestCli(packageManager)
+  }
+}
+
 function installNestCli(packageManager: PackageManager) {
   console.log(chalk.yellow(`\nYou do not have Nest Cli. Installing...`))
 
@@ -278,6 +290,19 @@ function installNestCli(packageManager: PackageManager) {
       : packageManager === 'yarn'
         ? 'yarn global add @nestjs/cli'
         : 'npm i -g @nestjs/cli'
+  )
+
+  return true
+}
+function installSailsCli(packageManager: PackageManager) {
+  console.log(chalk.yellow(`\nYou do not have Sails Cli. Installing...`))
+
+  execSync(
+    packageManager === 'pnpm'
+      ? 'pnpm add -g sails'
+      : packageManager === 'yarn'
+        ? 'yarn global add sails'
+        : 'npm i -g sails'
   )
 
   return true
