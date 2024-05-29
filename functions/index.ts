@@ -257,11 +257,28 @@ export async function updatePkg(
   writeFileSync(`${projectPath}/package.json`, `${JSON.stringify(pkg, null, indent)}\n`)
 }
 
-export function isNestCliInstalled() {
+/**
+ * To check nest cli is installed or not
+ */
+export function isNestCliInstalled(packageManager: PackageManager) {
   try {
-    execSync('git --version', { stdio: 'ignore' })
+    execSync('nest --version', { stdio: 'ignore' })
     return true
   } catch (error) {
-    return false
+    installNestCli(packageManager)
   }
+}
+
+function installNestCli(packageManager: PackageManager) {
+  console.log(chalk.yellow(`\nYou do not have Nest Cli. Installing...`))
+
+  execSync(
+    packageManager === 'pnpm'
+      ? 'pnpm add -g @nestjs/cli'
+      : packageManager === 'yarn'
+        ? 'yarn global add @nestjs/cli'
+        : 'npm i -g @nestjs/cli'
+  )
+
+  return true
 }
