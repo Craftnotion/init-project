@@ -62,6 +62,7 @@ async function standardiseCommits(projectName: string, projectPath: string) {
   await updatePkg(projectPath, 'devDependencies', { chalk: '^4.1.2' })
   console.log(chalk.green('\ncommitizen installed successfully!'))
   execSync('npx husky-init', { stdio: 'inherit', cwd: projectPath })
+  execSync('chmod ug+x .husky/*', { stdio: 'inherit', cwd: projectPath })
   console.log(
     chalk.green(`\nHusky and commit message template added successfully to ${projectName}!`)
   )
@@ -91,6 +92,7 @@ export async function copyTemplates(projectPath: string) {
   )
 
   fs.writeFileSync(`${projectPath}/changelog.config.js`, changeLogConfig, 'utf-8')
+  execSync('chmod ug+x .husky/*', { stdio: 'inherit', cwd: projectPath })
 }
 
 /**
