@@ -4,7 +4,10 @@
   "version": "1.0.2",
   "name": "@craftnotion/init-project",
   "description": "A CLI tool to initialize a new project with AdonisJS, NextJS, NestJS, React Native, Strapi, TypeScript, Husky, Git-CZ and more.",
-  "repository": "git://github.com/Craftnotion/init-project.git",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Craftnotion/init-project.git"
+  },
   "keywords": [
     "initproject",
     "project-initialization",
@@ -75,7 +78,9 @@
   },
   "license": "MIT",
   "main": "build/index.js",
-  "bin": "build/bin/index.js",
+  "bin": {
+    "init-project": "build/bin/index.js"
+  },
   "files": [
     "build/src",
     "build/functions",
@@ -142,5 +147,9 @@
     "inquirer": "^8.2.6",
     "type-fest": "^4.9.0",
     "validate-npm-package-name": "^5.0.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/Craftnotion/init-project/issues"
+  },
+  "homepage": "https://github.com/Craftnotion/init-project#readme"
 }
