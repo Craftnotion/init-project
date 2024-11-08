@@ -56,6 +56,11 @@ export async function runTasks() {
     getPackageManager(process.cwd()),
     PlatformClass.default.supportedPackageManagers
   )
+  console.log(
+    chalk.yellow.bold(
+      '\nPlease allow clear-npx-cache to clean your npx cache to install latest version of the framework.'
+    )
+  )
   const platformInstance = new PlatformClass.default({ projectName, packageManager })
   await platformInstance.handle().catch(() => {
     console.log(chalk.red.bold("\nCouldn't Scaffold the project. Please try again."))
