@@ -73,7 +73,7 @@ export async function runTasks() {
     process.exit(1)
   })
 
-  const gitSetup = new GitSetup(projectName, projectPath, platform);
+  const gitSetup = new GitSetup(projectName, projectPath, platform)
 
   await gitSetup.setupGit().catch((err) => {
     if (!err) console.log('')
