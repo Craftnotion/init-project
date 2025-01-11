@@ -6,27 +6,18 @@ export default class Adonisjs extends Base {
 
   public packageManager: PackageManager
   public projectName: string
-  public node: string = '14'
+  public node: string = '^20.0.0 || >=22.0.0'
 
   constructor(data: InitialInput) {
     const { packageManager, projectName } = data
 
-    super('npx')
+    super('npm init ')
 
     this.packageManager = packageManager
     this.projectName = projectName
   }
 
   public async handle() {
-    const { version } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'version',
-        message: 'Select the adonisjs version:',
-        choices: ['v5', 'v6'],
-      },
-    ])
-
     const { boilerplate } = await inquirer.prompt([
       {
         type: 'list',
@@ -36,56 +27,13 @@ export default class Adonisjs extends Base {
       },
     ])
 
-    version === 'v5'
-      ? await this.handleVersion5(boilerplate)
-      : await this.handleVersion6(boilerplate)
+    await this.handleVersion6(boilerplate)
 
     await this.scaffold()
   }
 
-  private async handleVersion5(boilerplate: string) {
-    this.node = '14'
-
-    this.command += ` create-adonis-ts-app ${this.projectName} --`
-
-    this.updateCommand('alias', { client: this.packageManager, name: this.projectName })
-
-    const { eslint } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'eslint',
-        message: 'Setup eslint?:',
-        default: false,
-      },
-    ])
-
-    this.updateCommand('alias', { boilerplate, eslint })
-
-    const { encore, prettier } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'prettier',
-        message: 'Setup prettier?:',
-        default: false,
-        when: eslint,
-      },
-      {
-        type: 'confirm',
-        name: 'encore',
-        message: 'Configure webpack encore for compiling frontend assets?',
-        default: false,
-        when: boilerplate === 'web',
-      },
-    ])
-
-    this.updateCommand('alias', { encore, prettier })
-
-    console.log(this.command)
-  }
   private async handleVersion6(boilerplate: string) {
-    this.node = '20.7'
-
-    this.command += ` create-adonisjs ${this.projectName}`
+    this.command += ` adonisjs -- ${this.projectName}`
 
     this.updateCommand('alias', { kit: boilerplate, pkg: this.packageManager })
 
@@ -101,7 +49,6 @@ export default class Adonisjs extends Base {
         name: 'auth-guard',
         message: 'Define the authentication guard for the Auth package',
         choices: this.authGuards,
-        when: boilerplate === 'api',
       },
     ])
 

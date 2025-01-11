@@ -4,7 +4,7 @@ import { isNestCliInstalled } from '../../functions/index'
 
 export default class Nestjs extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
-
+  public node: string = '16.0.0'
   public packageManager: PackageManager
 
   /**

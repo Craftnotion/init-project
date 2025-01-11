@@ -4,7 +4,7 @@ import { askUseTypeScript } from '../../functions'
 
 export default class Vuejs extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
-
+  public node: string = '18.3.0'
   /**
    * Base command for adonisjs
    */

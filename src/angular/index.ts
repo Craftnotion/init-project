@@ -3,7 +3,7 @@ import { Base } from '../base'
 
 export default class Angular extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
-
+  public node: string = '18.19.1'
   constructor(data: InitialInput) {
     let { projectName, packageManager } = data
     super(`npx -p @angular/cli ng new ${projectName} --package-manager=${packageManager}`)

@@ -4,14 +4,14 @@ import { askUseTypeScript } from '../../functions'
 
 export default class Strapi extends Base {
   public static supportedPackageManagers: Array<Exclude<PackageManager, 'pnpm'>> = ['npm', 'yarn']
-
+  public node: string = '18.0.0'
   /**
    * Base command for adonisjs
    */
   constructor(data: InitialInput) {
     const { packageManager = 'npm', projectName } = data
 
-    super(packageManager === 'npm' ? 'npx' : packageManager)
+    super(packageManager)
 
     if (packageManager === 'pnpm') return
 
@@ -23,7 +23,7 @@ export default class Strapi extends Base {
     projectName: string
   ): string {
     const commandMap: Record<Exclude<PackageManager, 'pnpm'>, string> = {
-      npm: ` create-strapi-app@latest ${projectName}`,
+      npm: ` strapi-app@latest ${projectName}`,
       yarn: ` create strapi-app ${projectName}`,
     }
     return commandMap[packageManager]

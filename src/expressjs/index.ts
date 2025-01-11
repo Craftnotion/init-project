@@ -4,7 +4,7 @@ import { Base } from '../base'
 
 export default class Expressjs extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn']
-
+  public node: string = '18.0.0'
   constructor(data: InitialInput) {
     let { projectName } = data
     super(`npx express-generator ${projectName}`)

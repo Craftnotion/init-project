@@ -36,7 +36,6 @@ export class Base {
   }
 
   protected scaffold() {
-    execSync('npx clear-npx-cache', { stdio: 'inherit' })
     execSync(this.command, { stdio: 'inherit' })
   }
 }

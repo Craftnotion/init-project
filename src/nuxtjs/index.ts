@@ -4,7 +4,7 @@ import { askUseTypeScript } from '../../functions'
 
 export default class Nuxtjs extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
-
+  public node: string = '18.0.0'
   /**
    * Base command for adonisjs
    */
@@ -15,7 +15,7 @@ export default class Nuxtjs extends Base {
   constructor(data: InitialInput) {
     let { packageManager = 'npm', projectName } = data
 
-    super(`npx create-nuxt-app ${projectName}`)
+    super(`npm init nuxt-app ${projectName}`)
 
     this.packageManager = packageManager
     this.projectName = projectName

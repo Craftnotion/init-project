@@ -4,14 +4,14 @@ import { askUseTypeScript } from '../../functions'
 
 export default class Nextjs extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
-
+  public node: string = '18.18.0'
   /**
    * Base command for adonisjs
    */
   constructor(data: InitialInput) {
     let { packageManager = 'npm', projectName } = data
 
-    super(`npx create-next-app@latest ${projectName} --use-${packageManager}`)
+    super(`npm init next-app@latest ${projectName} --use-${packageManager}`)
   }
 
   public async handle() {
