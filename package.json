@@ -78,9 +78,7 @@
   },
   "license": "MIT",
   "main": "build/index.js",
-  "bin": {
-    "init-project": "build/bin/index.js"
-  },
+  "bin": "build/bin/index.js",
   "files": [
     "build/src",
     "build/functions",
@@ -145,11 +143,13 @@
     "fs-extra": "^11.2.0",
     "getopts": "^2.3.0",
     "inquirer": "^8.2.6",
+    "semver": "^7.6.3",
     "type-fest": "^4.9.0",
     "validate-npm-package-name": "^5.0.0"
   },
   "bugs": {
     "url": "https://github.com/Craftnotion/init-project/issues"
   },
-  "homepage": "https://github.com/Craftnotion/init-project#readme"
+  "homepage": "https://github.com/Craftnotion/init-project#readme",
+  "packageManager": "yarn@3.6.4"
 }

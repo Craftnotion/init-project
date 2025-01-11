@@ -4,6 +4,7 @@ import path, { resolve } from 'path'
 import { pathExistsSync } from 'fs-extra'
 import { execSync } from 'child_process'
 var validate = require('validate-npm-package-name')
+const semver = require('semver')
 
 import chalk from 'chalk'
 
@@ -15,6 +16,17 @@ export function validateNpmName(name: string): boolean {
   }
 
   return false
+}
+
+/**
+ * Checks if the current Node.js version is compatible (>= requiredVersion).
+ * @param {string} requiredVersion - The minimum required Node.js version (e.g., "14.0.0").
+ * @returns {boolean} - True if compatible, false otherwise.
+ */
+export function isNodeVersionCompatible(requiredVersion: string) {
+  // process.version might be something like 'v14.17.0', so strip the 'v' first
+  const currentVersion = process.version.replace(/^v/, '')
+  return semver.satisfies(currentVersion, requiredVersion)
 }
 
 /**

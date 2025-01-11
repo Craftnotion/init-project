@@ -9,8 +9,9 @@ import {
   getPackageManager,
   isDirectoryNotEmpty,
   handlePackageManager,
+  isNodeVersionCompatible,
 } from './functions'
-import { setupGit } from './functions/git'
+import { GitSetup } from './functions/git'
 
 async function runPackageManager(projectPath: string, packageManager: string) {
   let command = handlePackageManager(projectPath, packageManager)
@@ -56,18 +57,25 @@ export async function runTasks() {
     getPackageManager(process.cwd()),
     PlatformClass.default.supportedPackageManagers
   )
-  console.log(
-    chalk.yellow.bold(
-      '\nPlease allow clear-npx-cache to clean your npx cache to install latest version of the framework.'
-    )
-  )
+
   const platformInstance = new PlatformClass.default({ projectName, packageManager })
+
+  if (!isNodeVersionCompatible(platformInstance.node)) {
+    console.log(
+      chalk.red.bold("\nCouldn't Scaffold the project. Minimum required NodeJs version is %s"),
+      platformInstance.node
+    )
+    process.exit(1)
+  }
+
   await platformInstance.handle().catch(() => {
     console.log(chalk.red.bold("\nCouldn't Scaffold the project. Please try again."))
     process.exit(1)
   })
 
-  await setupGit(projectName, projectPath).catch((err) => {
+  const gitSetup = new GitSetup(projectName, projectPath, platform);
+
+  await gitSetup.setupGit().catch((err) => {
     if (!err) console.log('')
     console.log(chalk.red.bold("\nCouldn't initialize GIT. Please run git init"))
     err && console.log(chalk.red.bold("\nCouldn't initialize GIT. Please run git init"))
