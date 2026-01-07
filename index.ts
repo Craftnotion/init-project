@@ -30,10 +30,16 @@ async function runPackageManager(projectPath: string, packageManager: string) {
 /**
  * Running all the tasks to create a new project.
  */
+import getopts from 'getopts'
+
+// ...
+
 export async function runTasks() {
   console.log(chalk.bold('\nWelcome to Project Initialization Wizard!'))
 
-  const projectName = await askProjectName()
+  const args = getopts(process.argv.slice(2))
+
+  const projectName = args._[0] || (await askProjectName())
 
   const projectPath = path.join(process.cwd(), projectName)
 
@@ -45,7 +51,7 @@ export async function runTasks() {
     )
   }
 
-  const platform = await askFramework()
+  const platform = await askFramework(args.platform)
   const PlatformClass = await import(`./src/${platform.toLocaleLowerCase()}`).catch(console.log)
 
   if (!PlatformClass) {
@@ -53,18 +59,17 @@ export async function runTasks() {
     process.exit(1)
   }
 
-  const packageManager = await askPackageManager(
-    getPackageManager(process.cwd()),
-    PlatformClass.default.supportedPackageManagers
-  )
+  const packageManager =
+    args['package-manager'] ||
+    (await askPackageManager(
+      getPackageManager(process.cwd()),
+      PlatformClass.default.supportedPackageManagers
+    ))
 
-  const platformInstance = new PlatformClass.default({ projectName, packageManager })
+  const platformInstance = new PlatformClass.default({ projectName, packageManager, args })
 
   if (!isNodeVersionCompatible(platformInstance.node)) {
-    console.log(
-      chalk.red.bold("\nCouldn't Scaffold the project. Minimum required NodeJs version is %s"),
-      platformInstance.node
-    )
+    console.log(chalk.red.bold('\nRequired NodeJs version is %s'), platformInstance.node)
     process.exit(1)
   }
 
@@ -73,7 +78,7 @@ export async function runTasks() {
     process.exit(1)
   })
 
-  const gitSetup = new GitSetup(projectName, projectPath, platform)
+  const gitSetup = new GitSetup(projectName, projectPath, platform, platformInstance.args)
 
   await gitSetup.setupGit().catch((err) => {
     if (!err) console.log('')

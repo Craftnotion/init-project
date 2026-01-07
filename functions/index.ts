@@ -108,7 +108,23 @@ export async function askPackageManager(
  * Ask the user which framework to use.
  * @returns {string} The framework that the user chose.
  */
-export async function askFramework(): Promise<Framework> {
+export async function askFramework(platformArg?: string): Promise<Framework> {
+  const supportedPlatforms = [
+    'adonisjs',
+    'nextjs',
+    'strapi',
+    'react-native',
+    'angular',
+    'expressjs',
+    'nestjs',
+    'vuejs',
+    'nuxtjs',
+  ]
+
+  if (platformArg && supportedPlatforms.includes(platformArg.toLowerCase())) {
+    return platformArg.toLowerCase() as Framework
+  }
+
   const { platform } = await inquirer.prompt({
     type: 'list',
     name: 'platform',
@@ -159,13 +175,21 @@ export function getPackageManager(appRoot: string): 'yarn' | 'pnpm' | 'npm' {
  * Ask the user if they want to use TypeScript.
  * @returns {boolean} A boolean value indicating whether the user wants to use TypeScript or not.
  */
-export async function askUseTypeScript(): Promise<boolean> {
-  const { useTypeScript } = await inquirer.prompt({
-    type: 'confirm',
-    name: 'useTypeScript',
-    message: 'Do you want to use TypeScript?',
-    default: false,
-  })
+export async function askUseTypeScript(args: any = {}): Promise<boolean> {
+  let useTypeScript = args['typescript'] ?? args.typescript
+
+  if (useTypeScript === 'false') useTypeScript = false
+  if (useTypeScript === 'true') useTypeScript = true
+
+  if (useTypeScript === undefined) {
+    const answers = await inquirer.prompt({
+      type: 'confirm',
+      name: 'useTypeScript',
+      message: 'Do you want to use TypeScript?',
+      default: false,
+    })
+    useTypeScript = answers.useTypeScript
+  }
   return useTypeScript
 }
 

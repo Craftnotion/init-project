@@ -2,9 +2,11 @@ import { execSync } from 'child_process'
 
 export class Base {
   protected command: string
+  protected args: any
 
-  constructor(command: string) {
+  constructor(command: string, args: any = {}) {
     this.command = command
+    this.args = args
   }
 
   protected updateCommand(
@@ -30,8 +32,13 @@ export class Base {
 
     // If data is an object, iterate over its entries
     Object.entries(data).forEach(([key, value]) => {
-      // If value is not undefined, append key=value, otherwise just append key
-      this.command += `${prefix}${key}${value !== undefined ? `=${value}` : ''}`
+      // If value is boolean true, just append key.
+      if (value === true) {
+        this.command += `${prefix}${key}`
+      } else {
+        // If value is not undefined, append key=value, otherwise just append key
+        this.command += `${prefix}${key}${value !== undefined ? `=${value}` : ''}`
+      }
     })
   }
 

@@ -1,4 +1,5 @@
 import inquirer from 'inquirer'
+import { askUseTypeScript } from '../../functions'
 
 import { Base } from '../base'
 
@@ -11,16 +12,18 @@ export default class ReactNative extends Base {
   constructor(data: InitialInput) {
     let { packageManager = 'npm', projectName } = data
 
-    super(`npx @react-native-community/cli@latest init ${projectName}`)
+    super(`npx @react-native-community/cli@latest init ${projectName}`, data.args)
   }
 
   public async handle() {
-    const data = await inquirer.prompt<{ 'install-pods': boolean }>({
-      type: 'confirm',
-      name: 'install-pods',
-      message: 'Do you want to install CocoaPods now?',
-      default: true,
-    })
+    const useTypeScript = await askUseTypeScript(this.args)
+
+    // We need to pass it as an object
+    const data = {
+      'skip-install': this.args['skip-install'] || this.args.skipInstall,
+      'install-pods': this.args['install-pods'] || this.args.installPods || false,
+      'typescript': useTypeScript,
+    }
 
     this.updateCommand('alias', data)
 

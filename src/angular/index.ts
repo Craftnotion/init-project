@@ -3,57 +3,31 @@ import { Base } from '../base'
 
 export default class Angular extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
-  public node: string = '18.19.1'
+  public node: string = '>=18.19.1'
   constructor(data: InitialInput) {
     let { projectName, packageManager } = data
-    super(`npx -p @angular/cli ng new ${projectName} --package-manager=${packageManager}`)
+    super(
+      `npx -p @angular/cli ng new ${projectName} --package-manager=${packageManager}`,
+      data.args
+    )
   }
 
   public async handle() {
     // Project options
-    const projectOptions = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'routing',
-        message: 'Include routing?',
-      },
-      {
-        type: 'list',
-        name: 's',
-        message: 'Styles:',
-        choices: [
-          { name: 'inline', value: true },
-          { name: 'separate', value: false },
-        ],
-      },
-      {
-        type: 'list',
-        name: 't',
-        message: 'Template:',
-        choices: [
-          { name: 'inline', value: true },
-          { name: 'separate', value: false },
-        ],
-      },
-      {
-        type: 'input',
-        name: 'prefix',
-        message: 'Selector prefix (optional)',
-      },
-      {
-        type: 'list',
-        name: 'type',
-        message: 'Type of application required ?',
-        choices: ['standalone', 'strict', 'minimal'],
-      },
-      {
-        type: 'list',
-        name: 'style',
-        message: 'Which stylesheet format would you like to use? ',
-        choices: ['css', 'scss', 'sass', 'less'],
-        default: 'css',
-      },
-    ])
+    let projectOptions: Record<string, any> = {
+      routing: this.args.routing,
+      s: this.args.style,
+      prefix: this.args.prefix || undefined,
+      type: this.args.type,
+      style: this.args.style,
+    }
+
+    if (this.args.template) {
+      this.command += ` -t ${this.args.template}`
+    }
+
+    // If options are missing, we don't prompt. We let the Angular CLI handle it.
+    projectOptions = { ...projectOptions }
 
     let type = projectOptions.type
 
@@ -64,21 +38,36 @@ export default class Angular extends Base {
 
     this.updateCommand('alias', projectOptions)
 
-    const otherOptions = await inquirer.prompt([
-      {
+    let otherOptions = {
+      'skip-tests': this.args['skip-tests'],
+      'ssr': this.args.ssr,
+    }
+
+    const otherQuestions = []
+    if (
+      this.args['skip-tests'] === undefined &&
+      this.args.skipTests === undefined &&
+      type !== 'minimal'
+    )
+      otherQuestions.push({
         type: 'confirm',
         name: 'skip-tests',
         message: 'Include unit testing (Karma/Jasmine)?',
-        when: type !== 'minimal',
-      },
-      {
+      })
+    if (this.args.ssr === undefined)
+      otherQuestions.push({
         type: 'confirm',
         name: 'ssr',
         message:
           'Creates an application with Server-Side Rendering (SSR) and Static Site Generation (SSG/Prerendering) enabled',
         default: false,
-      },
-    ])
+      })
+
+    const otherAnswers = await inquirer.prompt(otherQuestions)
+
+    otherOptions['skip-tests'] =
+      this.args['skip-tests'] ?? this.args.skipTests ?? otherAnswers['skip-tests']
+    otherOptions.ssr = this.args.ssr ?? otherAnswers.ssr
 
     this.updateCommand('alias', otherOptions)
 

@@ -1,1 +1,2 @@
-console.log('Tests comming soon')
+import '../tests/index.spec'
+import '../tests/scaffold.spec'

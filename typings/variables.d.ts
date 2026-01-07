@@ -14,6 +14,7 @@ type Framework =
 type InitialInput = {
   projectName: string
   packageManager: PackageManager
+  args?: any
 }
 
 type Prompt = {

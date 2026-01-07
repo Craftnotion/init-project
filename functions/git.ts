@@ -9,7 +9,8 @@ export class GitSetup {
   constructor(
     private projectName: string,
     private projectPath: string,
-    private platform: string
+    private platform: string,
+    private args: any = {}
   ) {}
 
   /**
@@ -92,7 +93,9 @@ export class GitSetup {
 
     // Initialize Husky for Git hooks
     execSync('npx husky-init', { stdio: 'inherit', cwd: this.projectPath })
-    execSync('chmod ug+x .husky/*', { stdio: 'inherit', cwd: this.projectPath })
+    if (process.platform !== 'win32') {
+      execSync('chmod ug+x .husky/*', { stdio: 'inherit', cwd: this.projectPath })
+    }
     console.log(
       chalk.green(`\nHusky and commit message template added successfully to ${this.projectName}!`)
     )
@@ -153,21 +156,39 @@ export class GitSetup {
     }
 
     // Ask user if they want to initialize Git and set up Husky
-    const { git, husky } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'git',
-        message: 'Do you want to initialise git?',
-        default: false,
-      },
-      {
-        type: 'confirm',
-        name: 'husky',
-        message: 'Do you want to standardise commit messages?',
-        default: false,
-        when: (answers: any) => answers.git === true,
-      },
-    ])
+    let git = this.args.git
+    if (git !== undefined) {
+      git = git === true || git === 'true'
+    }
+    let husky = this.args.husky
+    if (husky !== undefined) {
+      husky = husky === true || husky === 'true'
+    }
+
+    if (git === undefined) {
+      const answers = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'git',
+          message: 'Do you want to initialise git?',
+          default: false,
+        },
+      ])
+      git = answers.git
+    }
+
+    if (git && husky === undefined) {
+      const huskyAnswers = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'husky',
+          message: 'Do you want to standardise commit messages?',
+          default: false,
+          when: (answers: any) => git === true,
+        },
+      ])
+      husky = huskyAnswers.husky
+    }
 
     // Initialize Git repository
     if (git) {

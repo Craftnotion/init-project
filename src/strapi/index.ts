@@ -4,14 +4,14 @@ import { askUseTypeScript } from '../../functions'
 
 export default class Strapi extends Base {
   public static supportedPackageManagers: Array<Exclude<PackageManager, 'pnpm'>> = ['npm', 'yarn']
-  public node: string = '18.0.0'
+  public node: string = '>=18.0.0'
   /**
    * Base command for adonisjs
    */
   constructor(data: InitialInput) {
     const { packageManager = 'npm', projectName } = data
 
-    super(packageManager)
+    super('', data.args) // Pass empty string to avoid "npm" prefix duplication
 
     if (packageManager === 'pnpm') return
 
@@ -23,14 +23,14 @@ export default class Strapi extends Base {
     projectName: string
   ): string {
     const commandMap: Record<Exclude<PackageManager, 'pnpm'>, string> = {
-      npm: ` strapi-app@latest ${projectName}`,
-      yarn: ` create strapi-app ${projectName}`,
+      npm: `npx create-strapi-app@latest ${projectName}`,
+      yarn: `yarn create strapi-app ${projectName}`,
     }
     return commandMap[packageManager]
   }
 
   public async handle() {
-    const useTypeScript = await askUseTypeScript()
+    const useTypeScript = await askUseTypeScript(this.args)
 
     if (useTypeScript) {
       this.updateCommand('alias', 'typescript')
@@ -38,16 +38,58 @@ export default class Strapi extends Base {
 
     this.updateCommand('alias', 'no-run')
 
-    const { quick } = await this.promptInstallationType()
+    let quick = this.args.quick
+
+    if (quick === undefined) {
+      // const result = await this.promptInstallationType()
+      // quick = result.quick
+      // Default to quick if not specified? Or let CLI handle it?
+      // If we don't pass quick, Strapi usually asks.
+      // But if we want to avoid double prompting, we might default to one or the other if user didn't specify.
+      // However, the rule is "if framework is not following our prompts, don't show ours".
+      // So we just pass undefined/nothing and let Strapi ask.
+    }
 
     if (!quick) {
-      const { dbclient } = await this.promptDatabaseClient()
+      let dbclient = this.args.dbclient
+      // if (!dbclient) {
+      //   const result = await this.promptDatabaseClient()
+      //   dbclient = result.dbclient
+      // }
 
       if (dbclient === 'sqlite') {
-        const { dbfile } = await this.promptDatabaseFilePath()
+        let dbfile = this.args.dbfile
+        // if (!dbfile) {
+        //   const result = await this.promptDatabaseFilePath()
+        //   dbfile = result.dbfile
+        // }
         this.updateCommand('alias', { dbclient, dbfile })
       } else {
-        const database = await this.promptDatabaseDetails(dbclient)
+        const database = {
+          dbname: this.args.dbname,
+          dbhost: this.args.dbhost,
+          dbport: this.args.dbport,
+          dbusername: this.args.dbusername,
+          dbpassword: this.args.dbpassword,
+          dbssl: this.args.dbssl,
+        }
+
+        // If any required DB field is missing, we must prompt for ALL (or selectively, but simple is ALL)
+        // Actually, promptDatabaseDetails prompts for ALL. So if any is missing, prompt.
+        // Wait, strapi prompt is a list of questions. We can merge.
+
+        if (
+          !database.dbname ||
+          !database.dbhost ||
+          !database.dbport ||
+          !database.dbusername ||
+          !database.dbpassword
+        ) {
+          const result = await this.promptDatabaseDetails(dbclient)
+          // merge
+          Object.assign(database, result)
+        }
+
         this.updateCommand('alias', { ...database, dbclient })
       }
     } else {

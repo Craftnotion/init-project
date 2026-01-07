@@ -4,7 +4,7 @@ import { isNestCliInstalled } from '../../functions/index'
 
 export default class Nestjs extends Base {
   public static supportedPackageManagers: Array<PackageManager> = ['npm', 'yarn', 'pnpm']
-  public node: string = '16.0.0'
+  public node: string = '>=16.0.0'
   public packageManager: PackageManager
 
   /**
@@ -13,22 +13,27 @@ export default class Nestjs extends Base {
   constructor(data: InitialInput) {
     let { packageManager = 'npm', projectName } = data
 
-    super(`nest new ${projectName} --package-manager=${packageManager}`)
+    super(`npx @nestjs/cli new ${projectName} --package-manager=${packageManager}`, data.args)
 
     this.packageManager = packageManager
   }
 
   public async handle() {
-    const { strictMode } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'strictMode',
-        message: 'Enables strict mode in TypeScript.',
-        default: false,
-      },
-    ])
+    let strictMode = this.args.strict || this.args.strictMode
 
-    strictMode && this.updateCommand('flag', '-strict')
+    if (strictMode === undefined) {
+      const answers = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'strictMode',
+          message: 'Enables strict mode in TypeScript.',
+          default: false,
+        },
+      ])
+      strictMode = answers.strictMode
+    }
+
+    strictMode && this.updateCommand('alias', 'strict')
 
     //In case of nest js checking for nest cli and installing
     isNestCliInstalled(this.packageManager)

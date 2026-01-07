@@ -11,21 +11,26 @@ export default class Adonisjs extends Base {
   constructor(data: InitialInput) {
     const { packageManager, projectName } = data
 
-    super('npm init ')
+    super('npm init ', data.args)
 
     this.packageManager = packageManager
     this.projectName = projectName
   }
 
   public async handle() {
-    const { boilerplate } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'boilerplate',
-        message: 'Select the project boilerplate:',
-        choices: ['api', 'web', 'slim'],
-      },
-    ])
+    let boilerplate = this.args.boilerplate
+
+    if (!boilerplate) {
+      const answers = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'boilerplate',
+          message: 'Select the project boilerplate:',
+          choices: ['api', 'web', 'slim'],
+        },
+      ])
+      boilerplate = answers.boilerplate
+    }
 
     await this.handleVersion6(boilerplate)
 
@@ -37,22 +42,31 @@ export default class Adonisjs extends Base {
 
     this.updateCommand('alias', { kit: boilerplate, pkg: this.packageManager })
 
-    const options = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'db',
-        message: 'Define the database dialect to use with Lucid',
-        choices: this.databases,
-      },
-      {
-        type: 'list',
-        name: 'auth-guard',
-        message: 'Define the authentication guard for the Auth package',
-        choices: this.authGuards,
-      },
-    ])
+    let db = this.args.db
+    let authGuard = this.args.authGuard || this.args['auth-guard']
 
-    this.updateCommand('alias', options)
+    if (!db || !authGuard) {
+      const options = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'db',
+          message: 'Define the database dialect to use with Lucid',
+          choices: this.databases,
+          when: !db,
+        },
+        {
+          type: 'list',
+          name: 'auth-guard',
+          message: 'Define the authentication guard for the Auth package',
+          choices: this.authGuards,
+          when: !authGuard,
+        },
+      ])
+      db = db || options.db
+      authGuard = authGuard || options['auth-guard']
+    }
+
+    this.updateCommand('alias', { db, 'auth-guard': authGuard })
   }
 
   private databases = [
